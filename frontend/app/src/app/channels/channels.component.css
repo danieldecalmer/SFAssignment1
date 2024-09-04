@@ -1,0 +1,36 @@
+.channels-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.channel-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin: 20px 0;
+    padding: 0;
+}
+
+.channel-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.create-new-channel-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.create-new-channel-btn:hover {
+    background-color: #0056b3;
+}

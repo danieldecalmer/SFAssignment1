@@ -2,11 +2,11 @@
     <h1>Groups</h1>
     <div class="group-list" *ngFor="let group of groups">
         <div class="group-item">
-            <span>{{ group.name }}</span>
-            <button class="member-btn">
-
+            <span (click)="onClickGroup(group)" style="cursor: pointer;">{{ group.name }}</span>
+            <button class="member-btn" (click)="onClickMember(group)" aria-label="View Members">
+                <i class="fas fa-user"></i> <!-- Assuming you have FontAwesome for icons -->
             </button>
         </div>
     </div>
-    <button class="create-new-group-btn">Create New Group</button>
+    <button class="create-new-group-btn" (click)="createNewGroup()">Create New Group</button>
 </div>

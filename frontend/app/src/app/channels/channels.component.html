@@ -1,0 +1,9 @@
+<div class="channels-container">
+    <h1>Channels</h1>
+    <div class="channel-list">
+        <div class="channel-item" *ngFor="let channel of channels">
+            <span>{{ channel }}</span>
+        </div>
+    </div>
+    <button class="create-new-channel-btn" (click)="onClickCreateNewChannel()">Create New Channel</button>
+</div>

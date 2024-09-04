@@ -1,0 +1,43 @@
+.groups-container {
+    width: 300px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.group-list {
+    max-height: 400px;
+    overflow-y: scroll;
+    margin: 20px 0;
+    padding: 0;
+}
+
+.group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.member-btn {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.create-new-group-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.create-new-group-btn:hover {
+    background-color: #0056b3;
+}

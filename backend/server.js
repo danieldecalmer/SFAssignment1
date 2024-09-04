@@ -121,6 +121,26 @@ app.post('/login', (req, res) => {
   }
 });
 
+// Route to reset in-memory 'database'
+app.post('/reset', (req, res) => {
+  users.length = 0; // Clear the users array
+  groups.length = 0; // Clear the groups array
+
+  // Optionally, reinitialize with default data
+  users.push({
+    id: '1',
+    username: 'super',
+    password: '123',
+    email: 'super@example.com',
+    roles: ['group', 'super'],
+    groups: ['Group 1', 'Group 2', 'Group 3', 'Group 4', 'Group 5', 'Group 6', 'Group 7']
+  });
+
+  res.status(200).json({ message: 'In-memory database has been reset' });
+});
+
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+

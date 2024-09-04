@@ -59,4 +59,8 @@ export class CreateNewChannelComponent implements OnInit {
         }
       });
   }
+
+  onBackToChannels(): void {
+    this.router.navigate(['channels'], { state: { group: this.group } }); // Navigate back to channels
+  }
 }

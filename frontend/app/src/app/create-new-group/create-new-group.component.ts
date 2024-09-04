@@ -33,4 +33,8 @@ export class CreateNewGroupComponent {
       }
     });
   }
+
+  onBackToGroups(): void {
+    this.router.navigate(['groups']); // Navigate back to groups page
+  }
 }

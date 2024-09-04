@@ -23,6 +23,7 @@ export class ChannelsComponent implements OnInit {
       const group = window.history.state.group;
       if (group && group.channels) {
         this.channels = group.channels;
+        this.group = group;
       }
     });
   }
@@ -30,13 +31,24 @@ export class ChannelsComponent implements OnInit {
   onChannelClick(channel: string) {
     const navigationExtras: NavigationExtras = {
       state: {
-        channel: channel 
+        group: this.group,
+        channel: channel
       }
     };
     this.router.navigate(['chat'], navigationExtras);
   }
 
-  onClickCreateNewChannel () {
-    this.router.navigate(['create-new-channel']);
+  onClickCreateNewChannel() {
+    const navigationExtras: NavigationExtras = {
+      state: {
+        group: this.group // Pass the full group object
+      }
+    };
+    console.log(navigationExtras);
+    this.router.navigate(['create-new-channel'], navigationExtras);
+  }
+  
+  onBackToGroups() {
+    this.router.navigate(['groups']);
   }
 }

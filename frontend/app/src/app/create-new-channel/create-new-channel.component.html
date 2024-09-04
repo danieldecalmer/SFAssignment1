@@ -1,11 +1,12 @@
-<div class="container">
-    <form #channelForm="ngForm" (ngSubmit)="onSubmit(channelForm.value)">
-      <div class="form-group">
-        <label for="channelName">Channel Name:</label>
-        <input type="text" id="channelName" class="form-control" name="channelName" [(ngModel)]="channelName" required placeholder="Enter channel name">
-      </div>
-  
-      <button type="submit" class="btn btn-primary" [disabled]="!channelForm.form.valid">Create Channel</button>
-    </form>
-  </div>
-  
+<div class="create-new-channel-container">
+  <h1>Create New Channel</h1>
+  <form (ngSubmit)="onSubmit()" #channelForm="ngForm">
+    <div class="form-group">
+      <label for="channelName">Channel Name:</label>
+      <input type="text" id="channelName" name="channelName" [(ngModel)]="channelName" required>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="create-channel-btn">Create Channel</button>
+    </div>
+  </form>
+</div>

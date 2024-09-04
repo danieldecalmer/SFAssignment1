@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationExtras } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-groups',
@@ -10,38 +11,42 @@ import { RouterModule } from '@angular/router';
   templateUrl: './groups.component.html',
   styleUrl: './groups.component.css'
 })
-export class GroupsComponent {
-  constructor(private router: Router) {}
 
-  groups = [
-    { name: 'Group 1', channels: ['Channel A', 'Channel B', 'Channel C', 'Channel D'], members: ['Josh', 'Steve', 'John', 'Rob', 'Lester', 'Moe'], groupAdmin: 'Josh' },
-    { name: 'Group 2', channels: ['Channel E', 'Channel F'], members: ['Emily', 'Anna'], groupAdmin: 'Emily' },
-    { name: 'Group 3', channels: ['Channel G', 'Channel H', 'Channel I'], members: ['Bob', 'Kevin', 'Stuart'], groupAdmin: 'Kevin' },
-    { name: 'Group 4', channels: ['Channel J', 'Channel K', 'Channel L', 'Channel M'], members: ['Sarah', 'Alex'], groupAdmin: 'Sarah' },
-    { name: 'Group 5', channels: ['Channel N', 'Channel O', 'Channel P', 'Channel Q'], members: ['Emma', 'Olivia', 'Ava'], groupAdmin: 'Emma' },
-    { name: 'Group 6', channels: ['Channel R', 'Channel S', 'Channel T'], members: ['Grace', 'Chloe', 'Zoe'], groupAdmin: 'Chloe' },
-    { name: 'Group 7', channels: ['Channel U', 'Channel V'], members: ['Hannah', 'Lily'], groupAdmin: 'Hannah' }
-  ];
+export class GroupsComponent implements OnInit {
+  groups: any[] = [];
+
+  constructor(private router: Router, private http: HttpClient) {}
+
+  ngOnInit() {
+    this.loadGroups();
+  }
+
+  loadGroups() {
+    this.http.get<any[]>('http://localhost:3000/groups').subscribe({
+      next: (data) => {
+        this.groups = data;
+      },
+      error: (error) => {
+        console.error('Error loading groups:', error);
+      }
+    });
+  }
 
   onClickGroup(group: any) {
-    // Using Navigation Extras to pass state
     const navigationExtras: NavigationExtras = {
-      state: { group: group,  }
+      state: { group: group }
     };
     this.router.navigate(['channels'], navigationExtras);
   }
 
   onClickMember(group: any) {
-    // Assuming you want to navigate to a page that lists members
-    // This will need to pass either the group object or a specific identifier
     const navigationExtras: NavigationExtras = {
       state: { group: group }
     };
     this.router.navigate(['member-list'], navigationExtras);
   }
 
-  createNewGroup () {
+  createNewGroup() {
     this.router.navigate(['create-new-group']);
   }
-
 }

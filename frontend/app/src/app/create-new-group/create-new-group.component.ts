@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-create-new-group',
@@ -12,11 +13,24 @@ import { Router } from '@angular/router';
 export class CreateNewGroupComponent {
   groupName: string = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: HttpClient) {}
 
   onSubmit(formValues: any): void {
-    console.log('Form Submitted', formValues);
-    this.router.navigate(['groups']);
-    // Here you would add logic to communicate with the backend to save the group
+    const newGroup = {
+      name: this.groupName,
+      channels: [],
+      members: [],
+      groupAdmin: ''
+    };
+
+    this.http.post('http://localhost:3000/groups', newGroup).subscribe({
+      next: (response) => {
+        console.log('Group created successfully:', response);
+        this.router.navigate(['groups']);
+      },
+      error: (error) => {
+        console.error('Error creating group:', error);
+      }
+    });
   }
 }

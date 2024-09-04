@@ -26,7 +26,7 @@ export class GroupsComponent {
   onClickGroup(group: any) {
     // Using Navigation Extras to pass state
     const navigationExtras: NavigationExtras = {
-      state: { group: group }
+      state: { group: group,  }
     };
     this.router.navigate(['channels'], navigationExtras);
   }
@@ -34,12 +34,14 @@ export class GroupsComponent {
   onClickMember(group: any) {
     // Assuming you want to navigate to a page that lists members
     // This will need to pass either the group object or a specific identifier
-    this.router.navigate(['member-list'], { state: { members: group.members, groupName: group.name } });
+    const navigationExtras: NavigationExtras = {
+      state: { group: group }
+    };
+    this.router.navigate(['member-list'], navigationExtras);
   }
 
   createNewGroup () {
-
+    this.router.navigate(['create-new-group']);
   }
-
 
 }

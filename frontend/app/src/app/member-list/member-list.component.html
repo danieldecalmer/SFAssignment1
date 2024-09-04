@@ -1,1 +1,12 @@
-<p>member-list works!</p>
+<div class="member-list-container">
+    <h1>{{ groupName }} Member List</h1>
+    <div class="member-list" *ngFor="let member of members">
+        <div class="member-item">
+            <span>{{ member }} <span *ngIf="member === groupAdmin">&#9733;</span></span>
+            <div>
+                <button class="action-btn" (click)="onKickMember(member)">Kick</button>
+                <button class="action-btn" *ngIf="member !== groupAdmin" (click)="onPromoteMember(member)">Promote</button>
+            </div>
+        </div>
+    </div>
+</div>

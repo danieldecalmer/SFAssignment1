@@ -1,1 +1,11 @@
-<p>create-new-channel works!</p>
+<div class="container">
+    <form #channelForm="ngForm" (ngSubmit)="onSubmit(channelForm.value)">
+      <div class="form-group">
+        <label for="channelName">Channel Name:</label>
+        <input type="text" id="channelName" class="form-control" name="channelName" [(ngModel)]="channelName" required placeholder="Enter channel name">
+      </div>
+  
+      <button type="submit" class="btn btn-primary" [disabled]="!channelForm.form.valid">Create Channel</button>
+    </form>
+  </div>
+  

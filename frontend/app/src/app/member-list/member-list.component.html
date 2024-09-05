@@ -1,12 +1,37 @@
 <div class="member-list-container">
     <h1>{{ groupName }} Member List</h1>
+    
+    <!-- Back Button -->
+    <button class="back-btn" (click)="onBackToGroups()">Back to Groups</button>
+  
+    <!-- List of group members -->
     <div class="member-list" *ngFor="let member of members">
-        <div class="member-item">
-            <span>{{ member }} <span *ngIf="member === groupAdmin">&#9733;</span></span>
-            <div>
-                <button class="action-btn" (click)="onKickMember(member)">Kick</button>
-                <button class="action-btn" *ngIf="member !== groupAdmin" (click)="onPromoteMember(member)">Promote</button>
-            </div>
+      <div class="member-item">
+        <span>
+          {{ member }} <span *ngIf="member === groupAdmin">&#9733;</span> <!-- Star for group admin -->
+        </span>
+  
+        <!-- Action buttons, show only for group admins, hide for logged-in user -->
+        <div *ngIf="loggedInUser !== member && isGroupAdmin">
+          <button class="action-btn" (click)="onKickMember(member)">Kick</button>
+          <button class="action-btn" *ngIf="member !== groupAdmin" (click)="onPromoteMember(member)">Promote</button>
         </div>
+  
+        <!-- Show 'Leave' button for the logged-in user, if not super admin -->
+        <div *ngIf="loggedInUser === member && !isSuperAdmin">
+          <button class="action-btn" (click)="onLeaveGroup()">Leave Group</button>
+        </div>
+      </div>
     </div>
-</div>
+  
+    <!-- Waiting list section -->
+    <h2>Waiting List</h2>
+    <div class="waiting-list" *ngFor="let waitingMember of waitingList">
+      <div class="waiting-item">
+        <span>{{ waitingMember }}</span>
+        <!-- Show 'Add to Group' button only for group admins -->
+        <button *ngIf="isGroupAdmin" class="action-btn" (click)="onAddWaitingListMember(waitingMember)">Add to Group</button>
+      </div>
+    </div>
+  </div>
+  

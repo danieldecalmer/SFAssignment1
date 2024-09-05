@@ -1,12 +1,32 @@
 <div class="groups-container">
-    <h1>Groups</h1>
-    <div class="group-list" *ngFor="let group of groups">
-        <div class="group-item">
-            <span (click)="onClickGroup(group)" style="cursor: pointer;">{{ group.name }}</span>
-            <button class="member-btn" (click)="onClickMember(group)" aria-label="View Members">
-                <i class="fas fa-user"></i>
-            </button>
-        </div>
+  <!-- User's groups -->
+  <div class="user-groups">
+    <h2>Your Groups</h2>
+    <div *ngFor="let group of userGroups" class="group-item">
+      <button (click)="onClickGroup(group)">{{ group.name }}</button>
+      <button (click)="onClickMember(group)">View Members</button>
+      
+      <!-- Show Delete Group button if the user is authorized -->
+      <button *ngIf="canDeleteGroup(group)" (click)="deleteGroup(group)">Delete Group</button>
     </div>
-    <button class="create-new-group-btn" (click)="createNewGroup()">Create New Group</button>
+  </div>
+
+  <!-- Other groups -->
+  <div class="other-groups">
+    <h2>Other Groups</h2>
+    <div *ngFor="let group of otherGroups" class="group-item">
+      <button (click)="registerInterest(group)">{{ group.name }} (Request to Join)</button>
+    </div>
+  </div>
+
+  <!-- Create New Group Button -->
+  <button *ngIf="canCreateGroup" class="create-group-btn" (click)="createNewGroup()">Create New Group</button>
+
+  <!-- Logout Button -->
+  <button class="logout-btn" (click)="onLogout()">Logout</button>
+
+  <!-- Feedback message after registering interest -->
+  <div *ngIf="feedbackMessage" class="feedback-message">
+    {{ feedbackMessage }}
+  </div>
 </div>

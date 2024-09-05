@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NavigationExtras } from '@angular/router';
+import { HttpClient } from '@angular/common/http'; // Add HttpClient for user session
 
 @Component({
   selector: 'app-channels',
@@ -14,8 +15,10 @@ import { NavigationExtras } from '@angular/router';
 export class ChannelsComponent implements OnInit {
   channels: string[] = [];  // This will hold the channels
   group: any = {};  // This will hold the group object
+  loggedInUser: string = ''; // Store the logged-in user's username
+  isGroupAdmin: boolean = false; // Check if the logged-in user is a group admin
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(private router: Router, private route: ActivatedRoute, private http: HttpClient) {}
 
   ngOnInit(): void {
     // Attempt to retrieve state from ActivatedRoute
@@ -24,10 +27,25 @@ export class ChannelsComponent implements OnInit {
       if (group && group.channels) {
         this.channels = group.channels;
         this.group = group;
+        this.loadUserSession(); // Load user session after getting the group details
       }
     });
   }
 
+  // Load logged-in user's session to check group admin status
+  loadUserSession() {
+    this.http.get<any>('http://localhost:3000/user-session', { withCredentials: true }).subscribe({
+      next: (userData) => {
+        this.loggedInUser = userData.username;
+        this.isGroupAdmin = this.group.groupAdmins.includes(this.loggedInUser); // Check if user is a group admin
+      },
+      error: (error) => {
+        console.error('Error loading user session:', error);
+      }
+    });
+  }
+
+  // Function to navigate to the chat when a channel is clicked
   onChannelClick(channel: string) {
     const navigationExtras: NavigationExtras = {
       state: {
@@ -38,16 +56,33 @@ export class ChannelsComponent implements OnInit {
     this.router.navigate(['chat'], navigationExtras);
   }
 
+  // Function to navigate to the create new channel page
   onClickCreateNewChannel() {
     const navigationExtras: NavigationExtras = {
       state: {
         group: this.group // Pass the full group object
       }
     };
-    console.log(navigationExtras);
     this.router.navigate(['create-new-channel'], navigationExtras);
   }
-  
+
+  // Function to delete a channel (only visible to group admins)
+  onDeleteChannel(channel: string) {
+    if (confirm(`Are you sure you want to delete the channel "${channel}"?`)) {
+      this.http.delete(`http://localhost:3000/groups/${this.group.name}/channels/${channel}`).subscribe({
+        next: (response) => {
+          console.log(`Channel "${channel}" deleted successfully.`);
+          // Remove the deleted channel from the channels list
+          this.channels = this.channels.filter(ch => ch !== channel);
+        },
+        error: (error) => {
+          console.error('Error deleting channel:', error);
+        }
+      });
+    }
+  }
+
+  // Navigate back to groups page
   onBackToGroups() {
     this.router.navigate(['groups']);
   }

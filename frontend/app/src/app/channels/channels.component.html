@@ -3,8 +3,14 @@
     <div class="channel-list">
         <div class="channel-item" *ngFor="let channel of channels">
             <button (click)="onChannelClick(channel)">{{ channel }}</button>
+
+            <!-- Show "Delete Channel" button only if the logged-in user is a group admin -->
+            <button *ngIf="isGroupAdmin" class="delete-channel-btn" (click)="onDeleteChannel(channel)">Delete Channel</button>
         </div>
     </div>
-    <button class="create-new-channel-btn" (click)="onClickCreateNewChannel()">Create New Channel</button>
-    <button class="back-btn" (click)="onBackToGroups()">Back to Groups</button> 
+
+    <!-- Show "Create New Channel" button only if the logged-in user is a group admin -->
+    <button *ngIf="isGroupAdmin" class="create-new-channel-btn" (click)="onClickCreateNewChannel()">Create New Channel</button>
+
+    <button class="back-btn" (click)="onBackToGroups()">Back to Groups</button>
 </div>

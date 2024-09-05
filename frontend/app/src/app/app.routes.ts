@@ -7,6 +7,8 @@ import { ChannelsComponent } from './channels/channels.component';
 import { MemberListComponent } from './member-list/member-list.component';
 import { CreateNewChannelComponent } from './create-new-channel/create-new-channel.component';
 import { CreateNewGroupComponent } from './create-new-group/create-new-group.component';
+import { BanListComponent } from './ban-list/ban-list.component';
+import { BanAndReportComponent } from './ban-and-report/ban-and-report.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/login', pathMatch: 'full' }, 
@@ -18,4 +20,6 @@ export const routes: Routes = [
     { path: 'member-list', component: MemberListComponent },
     { path: 'create-new-channel', component: CreateNewChannelComponent },
     { path: 'create-new-group', component: CreateNewGroupComponent },
+    { path: 'ban-list', component: BanListComponent },
+    { path: 'ban-and-report', component: BanAndReportComponent },
 ];

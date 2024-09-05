@@ -8,9 +8,8 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './groups.component.html',
-  styleUrl: './groups.component.css'
+  styleUrls: ['./groups.component.css']
 })
-
 export class GroupsComponent implements OnInit {
   userGroups: any[] = []; 
   otherGroups: any[] = [];
@@ -18,6 +17,7 @@ export class GroupsComponent implements OnInit {
   user: any = {};
   canCreateGroup: boolean = false;
   feedbackMessage: string = '';
+  isSuperAdmin: boolean = false; // Add a flag to check if the user is a super admin
 
   constructor(private router: Router, private http: HttpClient) {}
   
@@ -29,6 +29,7 @@ export class GroupsComponent implements OnInit {
     this.http.get<any>('http://localhost:3000/user-session', { withCredentials: true }).subscribe({
       next: (userData) => {
         this.user = userData;
+        this.isSuperAdmin = this.user.roles.includes('super'); // Check if the user is a super admin
         this.checkUserPermissions();
         this.loadGroups();
       },
@@ -60,7 +61,6 @@ export class GroupsComponent implements OnInit {
     this.userGroups = this.allGroups.filter(group => group.members.includes(this.user.username));
     this.otherGroups = this.allGroups.filter(group => !group.members.includes(this.user.username));
   }
-  
 
   onClickGroup(group: any) {
     if (this.user.groups.includes(group.name)) {
@@ -93,14 +93,14 @@ export class GroupsComponent implements OnInit {
 
   createNewGroup() {
     if (this.canCreateGroup) {
-      this.router.navigate(['create-new-group']).then(() => {
-        // Reload user and groups to refresh the state after group creation
-        // this.loadUserAndGroups(); // This will reload both user and group data
-        // this.splitGroups(); // This will split the groups into userGroups and otherGroups
-      });
+      this.router.navigate(['create-new-group']);
     }
   }
-  
+
+  // Navigate to the ban list (only for super admins)
+  viewBanList() {
+    this.router.navigate(['ban-list']);
+  }
 
   // Logout method to call /logout and navigate to /login
   onLogout() {

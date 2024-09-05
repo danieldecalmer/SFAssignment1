@@ -41,24 +41,59 @@ let users = [
   }
 ];
 
-let groups = [
-  // {
-  //   id: uuidv4(),
-  //   name: 'Group 1',
-  //   channels: ['Channel A', 'Channel B', 'Channel C', 'Channel D'],
-  //   members: ['super'],
-  //   groupAdmins: ['super'],
-  //   waitingList: [] // New waiting list for users interested in joining
-  // },
-  // {
-  //   id: uuidv4(),
-  //   name: 'Group 2',
-  //   channels: ['Channel E', 'Channel F'],
-  //   members: ['super', 'groupexample'],
-  //   groupAdmins: ['super', 'groupexample'],
-  //   waitingList: [] // New waiting list for users interested in joining
-  // }
-];
+let groups = [];
+let bannedList = [];
+
+// Route to ban a user and submit the report
+app.post('/ban-user', (req, res) => {
+  const { username, report } = req.body;
+
+  // Find the user
+  const user = users.find(u => u.username === username);
+  if (!user) {
+    return res.status(404).json({ message: `User ${username} not found.` });
+  }
+
+  // Remove the user from all group member lists and group admins lists
+  groups.forEach(group => {
+    group.members = group.members.filter(member => member !== username);
+    if (group.groupAdmin === username) {
+      group.groupAdmin = group.members.length > 0 ? group.members[0] : null; // Promote another member, or set to null
+    }
+  });
+
+  // Clear user's group array
+  user.groups = [];
+
+  // Add user to banned list with report
+  bannedList.push({ username: username, report: report || 'No report provided' });
+
+  // Respond with success
+  res.status(200).json({ message: `${username} has been banned successfully.` });
+});
+
+// Route to unban a user
+app.post('/unban-user', (req, res) => {
+  const { username } = req.body;
+
+  // Find the user in the bannedList
+  const bannedIndex = bannedList.findIndex(bannedUser => bannedUser.username === username);
+
+  if (bannedIndex === -1) {
+    return res.status(404).json({ message: `User ${username} not found in banned list.` });
+  }
+
+  // Remove the user from the bannedList
+  bannedList.splice(bannedIndex, 1);
+
+  // Respond with success
+  res.status(200).json({ message: `${username} has been unbanned successfully.` });
+});
+
+// Route to get all banned users
+app.get('/banned-users', (req, res) => {
+  res.status(200).json(bannedList);
+});
 
 // Route to add user to a group's waiting list
 app.post('/groups/:groupName/register-interest', (req, res) => {

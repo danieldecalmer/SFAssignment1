@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -65,9 +65,7 @@ export class MemberListComponent implements OnInit {
       this.http.post(`http://localhost:3000/groups/${this.groupName}/kick`, { member }).subscribe({
         next: (response) => {
           console.log(response);
-          // Remove the member from the UI
           this.members = this.members.filter(m => m !== member);
-          // Redirect or update UI after kicking the member
         },
         error: (error) => {
           console.error('Error kicking member:', error);
@@ -82,7 +80,6 @@ export class MemberListComponent implements OnInit {
       this.http.post(`http://localhost:3000/groups/${this.groupName}/promote`, { member }).subscribe({
         next: (response) => {
           console.log(response);
-          // Update the group admin in the UI if necessary
         },
         error: (error) => {
           console.error('Error promoting member:', error);
@@ -97,14 +94,22 @@ export class MemberListComponent implements OnInit {
       this.http.post(`http://localhost:3000/groups/${this.groupName}/add-member`, { member }).subscribe({
         next: (response) => {
           console.log(response);
-          this.members.push(member); // Add member to group
-          this.waitingList = this.waitingList.filter(m => m !== member); // Remove from waiting list
+          this.members.push(member);
+          this.waitingList = this.waitingList.filter(m => m !== member);
         },
         error: (error) => {
           console.error('Error adding member:', error);
         }
       });
     }
+  }
+
+  // Navigate to Ban and Report with the username
+  onBanAndReport(member: string) {
+    const navigationExtras: NavigationExtras = {
+      state: { username: member }
+    };
+    this.router.navigate(['ban-and-report'], navigationExtras);
   }
 
   onLeaveGroup() {

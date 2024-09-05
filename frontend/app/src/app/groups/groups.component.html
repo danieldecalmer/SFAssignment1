@@ -22,6 +22,9 @@
   <!-- Create New Group Button -->
   <button *ngIf="canCreateGroup" class="create-group-btn" (click)="createNewGroup()">Create New Group</button>
 
+  <!-- Ban List Button (Only visible to 'super' users) -->
+  <button *ngIf="isSuperAdmin" class="ban-list-btn" (click)="viewBanList()">Ban List</button>
+
   <!-- Logout Button -->
   <button class="logout-btn" (click)="onLogout()">Logout</button>
 

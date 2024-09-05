@@ -1,0 +1,9 @@
+<div class="ban-report-container">
+    <h2>Ban and Report: {{ username }}</h2>
+
+    <label for="report">Report (optional):</label>
+    <textarea id="report" [(ngModel)]="report" placeholder="Enter your report here"></textarea>
+
+    <button (click)="onSubmitBan()">Submit Ban</button>
+</div>
+  

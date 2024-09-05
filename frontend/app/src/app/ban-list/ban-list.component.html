@@ -1,0 +1,17 @@
+<div class="ban-list-container">
+    <h2>Banned Users</h2>
+
+    <div *ngIf="bannedUsers.length === 0">
+        <p>No banned users.</p>
+    </div>
+
+    <ul *ngIf="bannedUsers.length > 0">
+        <li *ngFor="let user of bannedUsers">
+        <div class="banned-user-item">
+            <span><strong>{{ user.username }}</strong> - {{ user.report }}</span>
+            <button (click)="unbanUser(user.username)">Unban</button>
+        </div>
+        </li>
+    </ul>
+</div>
+  

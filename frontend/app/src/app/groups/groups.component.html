@@ -25,6 +25,9 @@
   <!-- Logout Button -->
   <button class="logout-btn" (click)="onLogout()">Logout</button>
 
+  <!-- Delete Account Button -->
+  <button *ngIf="canDeleteAccount()" class="delete-account-btn" (click)="deleteAccount()">Delete Account</button>
+
   <!-- Feedback message after registering interest -->
   <div *ngIf="feedbackMessage" class="feedback-message">
     {{ feedbackMessage }}

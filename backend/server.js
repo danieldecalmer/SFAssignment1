@@ -397,6 +397,62 @@ app.post('/register', (req, res) => {
   res.status(201).json({ message: `User ${username} registered successfully!`, user: newUser });
 });
 
+// Route to delete a user account
+app.delete('/delete-account', (req, res) => {
+  const sessionUser = req.session.user; // Get the logged-in user's session
+
+  if (!sessionUser || !sessionUser.username) {
+    return res.status(401).json({ message: 'Unauthorized: No user is logged in' });
+  }
+
+  // Find the index of the user
+  const userIndex = users.findIndex(user => user.username === sessionUser.username);
+
+  if (userIndex === -1) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  // Check if the user has any roles (account deletion is only allowed if roles array is empty)
+  if (users[userIndex].roles.length > 0) {
+    return res.status(400).json({ message: 'Cannot delete account with roles assigned' });
+  }
+
+  // Remove the user from all group member lists, group admin lists, and waiting lists
+  groups.forEach(group => {
+    // Remove from members list
+    group.members = group.members.filter(member => member !== sessionUser.username);
+
+    // Remove from group admins list if present
+    if (group.groupAdmins) {
+      group.groupAdmins = group.groupAdmins.filter(admin => admin !== sessionUser.username);
+    }
+
+    // Remove from waiting list
+    if (group.waitingList) {
+      group.waitingList = group.waitingList.filter(waitingUser => waitingUser !== sessionUser.username);
+    }
+
+    // Handle group admin if the user was the group admin (optional: promote another member)
+    if (group.groupAdmin === sessionUser.username) {
+      group.groupAdmin = group.members.length > 0 ? group.members[0] : null; // Promote the first member, or set to null
+    }
+  });
+
+  // Remove the user from the users array
+  users.splice(userIndex, 1);
+
+  // Destroy the session after account deletion
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).json({ message: 'Account deleted, but session destroy failed' });
+    }
+    res.status(200).json({ message: 'Account and all group-related data deleted successfully' });
+  });
+});
+
+
+
+
 // Route to log in the user and create a session
 app.post('/login', (req, res) => {
   const { username, password } = req.body;

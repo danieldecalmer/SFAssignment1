@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, NavigationExtras } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-groups',
@@ -37,7 +37,7 @@ export class GroupsComponent implements OnInit {
       }
     });
   }
-  
+
   loadGroups() {
     this.http.get<any[]>('http://localhost:3000/groups').subscribe({
       next: (groupsData) => {
@@ -57,13 +57,10 @@ export class GroupsComponent implements OnInit {
   }
 
   splitGroups() {
-    if (this.user.groups) {
-      this.userGroups = this.allGroups.filter(group => this.user.groups.includes(group.name));
-      this.otherGroups = this.allGroups.filter(group => !this.user.groups.includes(group.name));
-    } else {
-      this.otherGroups = this.allGroups;
-    }
+    this.userGroups = this.allGroups.filter(group => group.members.includes(this.user.username));
+    this.otherGroups = this.allGroups.filter(group => !group.members.includes(this.user.username));
   }
+  
 
   onClickGroup(group: any) {
     if (this.user.groups.includes(group.name)) {
@@ -96,9 +93,14 @@ export class GroupsComponent implements OnInit {
 
   createNewGroup() {
     if (this.canCreateGroup) {
-      this.router.navigate(['create-new-group']);
+      this.router.navigate(['create-new-group']).then(() => {
+        // Reload user and groups to refresh the state after group creation
+        // this.loadUserAndGroups(); // This will reload both user and group data
+        // this.splitGroups(); // This will split the groups into userGroups and otherGroups
+      });
     }
   }
+  
 
   // Logout method to call /logout and navigate to /login
   onLogout() {
@@ -128,6 +130,24 @@ export class GroupsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error deleting group:', error);
+      }
+    });
+  }
+
+  // Check if the user has an empty roles array
+  canDeleteAccount() {
+    return this.user.roles?.length === 0 ? true : false;
+  }
+
+  // Delete account method
+  deleteAccount() {
+    this.http.delete('http://localhost:3000/delete-account', { withCredentials: true }).subscribe({
+      next: (response: any) => {
+        console.log(response.message);
+        this.router.navigate(['/login']); // Navigate to login after account deletion
+      },
+      error: (error) => {
+        console.error('Error deleting account:', error);
       }
     });
   }

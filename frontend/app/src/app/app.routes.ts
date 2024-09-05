@@ -17,5 +17,5 @@ export const routes: Routes = [
     { path: 'channels', component: ChannelsComponent },
     { path: 'member-list', component: MemberListComponent },
     { path: 'create-new-channel', component: CreateNewChannelComponent },
-    { path: 'create-new-group', component: CreateNewGroupComponent }
+    { path: 'create-new-group', component: CreateNewGroupComponent },
 ];

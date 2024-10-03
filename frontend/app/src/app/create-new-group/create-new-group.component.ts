@@ -32,14 +32,15 @@ export class CreateNewGroupComponent implements OnInit {
     const newGroup = {
       name: this.groupName,
       channels: [],
-      members: [],
+      members: [this.loggedInUser], // Set the logged-in user as the first member
       groupAdmin: this.loggedInUser // Set the logged-in user as the group admin
     };
 
     this.http.post('http://localhost:3000/groups', newGroup).subscribe({
       next: (response) => {
         console.log('Group created successfully:', response);
-        this.router.navigate(['groups']);
+        // Navigate back to the groups page after successful creation
+        this.router.navigate(['groups'], { state: { reload: true } }); // Add state to trigger reload
       },
       error: (error) => {
         console.error('Error creating group:', error);

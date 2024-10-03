@@ -10,7 +10,6 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './member-list.component.html',
   styleUrl: './member-list.component.css'
 })
-
 export class MemberListComponent implements OnInit {
   members: any[] = [];
   groupName: string = '';
@@ -19,6 +18,7 @@ export class MemberListComponent implements OnInit {
   loggedInUser: string = '';
   isGroupAdmin: boolean = false;
   isSuperAdmin: boolean = false;
+  otherUsers: any[] = []; // List of users that can be added to the group
 
   constructor(private route: ActivatedRoute, private http: HttpClient, private router: Router) {}
 
@@ -41,6 +41,7 @@ export class MemberListComponent implements OnInit {
         this.isSuperAdmin = userData.roles.includes('super');
         this.isGroupAdmin = this.isSuperAdmin || this.loggedInUser === this.groupAdmin;
         this.loadWaitingList();
+        this.loadOtherUsers(); // Load the "Other Users" who are not in the group
       },
       error: (error) => {
         console.error('Error loading user session:', error);
@@ -58,6 +59,20 @@ export class MemberListComponent implements OnInit {
       }
     });
   }
+
+  // Fetch all users and filter those who are not in the group
+  loadOtherUsers() {
+    this.http.get<any[]>('http://localhost:3000/users', { withCredentials: true }).subscribe({
+      next: (allUsers: any[]) => {
+        // Filter out members who are already in the group
+        this.otherUsers = allUsers.filter((user: { username: string }) => !this.members.includes(user.username));
+      },
+      error: (error) => {
+        console.error('Error loading other users:', error);
+      }
+    });
+  }
+
 
   // Kick member (group admin only)
   onKickMember(member: string) {
@@ -103,6 +118,30 @@ export class MemberListComponent implements OnInit {
       });
     }
   }
+
+  // Add a user from the "Other Users" section to the group
+  onAddOtherUser(member: string) {
+    if (this.isGroupAdmin) {
+      this.http.post(`http://localhost:3000/groups/${this.groupName}/add-member`, { member }).subscribe({
+        next: (response) => {
+          console.log(response);
+          
+          // Add to group members list
+          this.members.push(member);
+          
+          // Remove from the otherUsers list immediately
+          this.otherUsers = this.otherUsers.filter(m => m.username !== member);
+          
+          // Optionally trigger change detection (if necessary)
+          // this.changeDetectorRef.detectChanges(); // Uncomment if you use ChangeDetectorRef
+        },
+        error: (error) => {
+          console.error('Error adding member:', error);
+        }
+      });
+    }
+  }
+
 
   // Navigate to Ban and Report with the username
   onBanAndReport(member: string) {

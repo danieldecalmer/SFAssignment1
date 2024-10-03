@@ -1,0 +1,274 @@
+{
+  "users": [
+    {
+      "id": "12345678-9101-1121-3141-516171819202",
+      "username": "super",
+      "password": "123",
+      "email": "super@example.com",
+      "roles": [
+        "group",
+        "super"
+      ],
+      "groups": [
+        "Group 1",
+        "Group 2",
+        "asdf",
+        "fre",
+        "mklew",
+        "lkj",
+        "fewdf",
+        "cknjekl",
+        "sdfrevr",
+        "mlkresd",
+        "nlkoi",
+        "repo",
+        "dsflkje",
+        "newGRoup"
+      ]
+    },
+    {
+      "id": "2cc34a38-a88b-425a-805e-7b7608ed7edf",
+      "username": "e",
+      "password": "e",
+      "email": "e",
+      "roles": [
+        "group"
+      ],
+      "groups": [
+        "fre",
+        "asdf",
+        "mklew",
+        "lkj",
+        "fewdf",
+        "cknjekl",
+        "mlkresd",
+        "nlkoi",
+        "repo",
+        "dsflkje",
+        "newGRoup"
+      ]
+    },
+    {
+      "id": "5c06a740-4e11-4df6-974e-8229e37306c0",
+      "username": "g",
+      "password": "g",
+      "email": "g",
+      "roles": [
+        "group"
+      ],
+      "groups": [
+        "mklew"
+      ]
+    },
+    {
+      "id": "c5e10640-fc48-4bcd-9382-9874ee38cd5b",
+      "username": "d",
+      "password": "d",
+      "email": "d",
+      "roles": [],
+      "groups": []
+    },
+    {
+      "id": "e33255b5-3aad-4bb7-855c-9fd7d561226a",
+      "username": "f",
+      "password": "f",
+      "email": "f",
+      "roles": [
+        "group"
+      ],
+      "groups": [
+        "asdf",
+        "mklew"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": "37d8c86f-d233-4605-9db0-c40b60d99b82",
+      "name": "asdf",
+      "channels": [
+        "f4",
+        "few"
+      ],
+      "members": [
+        "super",
+        "e",
+        "f"
+      ],
+      "groupAdmin": "super",
+      "groupAdmins": [
+        "super"
+      ],
+      "waitingList": []
+    },
+    {
+      "id": "77f06bb7-28c9-4b61-92ad-1cb6fd8c6027",
+      "name": "fre",
+      "channels": [],
+      "members": [
+        "super",
+        "e"
+      ],
+      "groupAdmin": "super",
+      "groupAdmins": [
+        "super"
+      ],
+      "waitingList": [
+        "f"
+      ]
+    },
+    {
+      "id": "0ec97313-2730-4576-9109-f78dbb14615b",
+      "name": "mklew",
+      "channels": [],
+      "members": [
+        "f",
+        "super",
+        "e",
+        "g"
+      ],
+      "groupAdmin": "f",
+      "groupAdmins": [
+        "f",
+        "super"
+      ],
+      "waitingList": []
+    },
+    {
+      "id": "de6cdbf7-0d2d-4b80-b794-03e218f958a2",
+      "name": "lkj",
+      "channels": [],
+      "members": [
+        "e",
+        "super"
+      ],
+      "groupAdmin": "e",
+      "groupAdmins": [
+        "e",
+        "super"
+      ],
+      "waitingList": []
+    },
+    {
+      "id": "d5878c0f-5d37-4a6b-82a6-01f3359086c3",
+      "name": "fewdf",
+      "channels": [],
+      "members": [
+        "e",
+        "super"
+      ],
+      "groupAdmin": "e",
+      "groupAdmins": [
+        "e",
+        "super"
+      ],
+      "waitingList": []
+    },
+    {
+      "id": "e9036b01-acd6-49ca-baa0-09611d66fac7",
+      "name": "cknjekl",
+      "channels": [],
+      "members": [
+        "e",
+        "super"
+      ],
+      "groupAdmin": "e",
+      "groupAdmins": [
+        "e",
+        "super"
+      ],
+      "waitingList": []
+    },
+    {
+      "id": "b4972457-a8f6-43a3-b670-1fa51da142da",
+      "name": "sdfrevr",
+      "channels": [],
+      "members": [
+        "super"
+      ],
+      "groupAdmin": "super",
+      "groupAdmins": [
+        "super"
+      ],
+      "waitingList": [
+        "e"
+      ]
+    },
+    {
+      "id": "47f5ba7d-a224-4c75-b51d-cd41f771b3f4",
+      "name": "mlkresd",
+      "channels": [],
+      "members": [
+        "e",
+        "super"
+      ],
+      "groupAdmin": "e",
+      "groupAdmins": [
+        "e",
+        "super"
+      ],
+      "waitingList": []
+    },
+    {
+      "id": "1386f8ce-ae75-4c94-89f5-a7f11a33540c",
+      "name": "nlkoi",
+      "channels": [],
+      "members": [
+        "e",
+        "super"
+      ],
+      "groupAdmin": "e",
+      "groupAdmins": [
+        "e",
+        "super"
+      ],
+      "waitingList": []
+    },
+    {
+      "id": "f0376fea-1e98-4268-a34c-0c2a906783a4",
+      "name": "repo",
+      "channels": [],
+      "members": [
+        "e",
+        "super"
+      ],
+      "groupAdmin": "e",
+      "groupAdmins": [
+        "e",
+        "super"
+      ],
+      "waitingList": []
+    },
+    {
+      "id": "19a892a3-e3a2-4be7-ad47-da6272896b3c",
+      "name": "dsflkje",
+      "channels": [],
+      "members": [
+        "e",
+        "super"
+      ],
+      "groupAdmin": "e",
+      "groupAdmins": [
+        "e",
+        "super"
+      ],
+      "waitingList": []
+    },
+    {
+      "id": "d6349ff9-5c61-40a2-84f1-0a3b2deffafb",
+      "name": "newGRoup",
+      "channels": [],
+      "members": [
+        "e",
+        "super"
+      ],
+      "groupAdmin": "e",
+      "groupAdmins": [
+        "e",
+        "super"
+      ],
+      "waitingList": []
+    }
+  ],
+  "bannedList": []
+}

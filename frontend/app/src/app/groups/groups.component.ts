@@ -22,8 +22,17 @@ export class GroupsComponent implements OnInit {
   constructor(private router: Router, private http: HttpClient) {}
   
   ngOnInit(): void {
-    this.loadUserAndGroups();
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras?.state;
+  
+    // Check if state has reload flag, reload the groups if necessary
+    if (state && state['reload']) {
+      this.loadGroups();
+    } else {
+      this.loadUserAndGroups();
+    }
   }
+  
 
   loadUserAndGroups() {
     this.http.get<any>('http://localhost:3000/user-session', { withCredentials: true }).subscribe({
@@ -68,6 +77,8 @@ export class GroupsComponent implements OnInit {
         state: { group: group }
       };
       this.router.navigate(['channels'], navigationExtras);
+    } else {
+      console.log('You are not a member of this group');
     }
   }
 

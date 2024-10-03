@@ -38,4 +38,14 @@
       <button *ngIf="isGroupAdmin" class="action-btn" (click)="onAddWaitingListMember(waitingMember)">Add to Group</button>
     </div>
   </div>
+
+  <!-- Other users section -->
+  <h2>Other Users</h2>
+  <div class="other-users" *ngFor="let otherUser of otherUsers">
+    <div class="other-user-item">
+      <span>{{ otherUser.username }}</span>
+      <!-- Show 'Add to Group' button only for group admins -->
+      <button *ngIf="isGroupAdmin" class="action-btn" (click)="onAddOtherUser(otherUser.username)">Add to Group</button>
+    </div>
+  </div>
 </div>

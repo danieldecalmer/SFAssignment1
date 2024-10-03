@@ -25,15 +25,21 @@ export class LoginComponent {
 
   OnLogin() {
     // Make a POST request to the /login route
-    this.http.post<{ message: string }>('http://localhost:3000/login', 
-      { username: this.username, password: this.password }, 
-      { withCredentials: true }) // Include credentials (cookies) for session management
+    this.http.post<{ message: string, user: { id: string, username: string, roles: string[], groups: string[] } }>(
+        'http://localhost:3000/login', 
+        { username: this.username, password: this.password }, 
+        { withCredentials: true }) // Include credentials (cookies) for session management
       .subscribe({
         next: (response) => {
-          // Assuming the response contains { message: "User <username> logged in successfully!" }
+          // Check if the login was successful by inspecting the message
           if (response.message.includes('logged in successfully')) {
-            // Navigate to the groups page after successful login
+            // Log the success message
             console.log(response.message);
+  
+            // You can also access the user data from response.user if needed
+            console.log('Logged in user details:', response.user);
+  
+            // Navigate to the groups page after successful login
             this.router.navigate(['groups']);
           } else {
             // Handle a failed login attempt
@@ -46,4 +52,5 @@ export class LoginComponent {
         }
       });
   }
+  
 }

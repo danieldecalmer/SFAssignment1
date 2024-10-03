@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NavigationExtras } from '@angular/router';
-import { HttpClient } from '@angular/common/http'; // Add HttpClient for user session
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-channels',
@@ -21,15 +21,35 @@ export class ChannelsComponent implements OnInit {
   constructor(private router: Router, private route: ActivatedRoute, private http: HttpClient) {}
 
   ngOnInit(): void {
-    // Attempt to retrieve state from ActivatedRoute
+    // Attempt to get the group from the navigation state or URL
     this.route.paramMap.subscribe(params => {
-      const group = window.history.state.group;
-      if (group && group.channels) {
-        this.channels = group.channels;
+      const group = window.history.state.group;  // Group passed via state
+      if (group) {
         this.group = group;
-        this.loadUserSession(); // Load user session after getting the group details
+        this.channels = group.channels || []; // Initialize channels array
+        this.loadUserSession();
+      } else {
+        // If no group in state, fetch it using groupName from URL
+        const groupName = this.route.snapshot.paramMap.get('groupName'); // Assuming groupName is passed in URL
+        this.fetchGroupDetails(groupName);
       }
     });
+  }
+
+  // Fetch group details if not passed in state (this is optional)
+  fetchGroupDetails(groupName: string | null) {
+    if (groupName) {
+      this.http.get<any>(`http://localhost:3000/groups/${groupName}`).subscribe({
+        next: (groupData) => {
+          this.group = groupData;
+          this.channels = groupData.channels || [];
+          this.loadUserSession();
+        },
+        error: (error) => {
+          console.error('Error fetching group details:', error);
+        }
+      });
+    }
   }
 
   // Load logged-in user's session to check group admin status
@@ -37,7 +57,7 @@ export class ChannelsComponent implements OnInit {
     this.http.get<any>('http://localhost:3000/user-session', { withCredentials: true }).subscribe({
       next: (userData) => {
         this.loggedInUser = userData.username;
-        this.isGroupAdmin = this.group.groupAdmins.includes(this.loggedInUser); // Check if user is a group admin
+        this.isGroupAdmin = this.group.groupAdmins?.includes(this.loggedInUser); // Check if user is a group admin
       },
       error: (error) => {
         console.error('Error loading user session:', error);

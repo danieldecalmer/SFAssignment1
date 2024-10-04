@@ -89,16 +89,19 @@ export class ChannelsComponent implements OnInit {
   // Function to delete a channel (only visible to group admins)
   onDeleteChannel(channel: string) {
     if (confirm(`Are you sure you want to delete the channel "${channel}"?`)) {
-      this.http.delete(`http://localhost:3000/groups/${this.group.name}/channels/${channel}`).subscribe({
-        next: (response) => {
-          console.log(`Channel "${channel}" deleted successfully.`);
-          // Remove the deleted channel from the channels list
-          this.channels = this.channels.filter(ch => ch !== channel);
-        },
-        error: (error) => {
-          console.error('Error deleting channel:', error);
-        }
-      });
+      const payload = { username: this.loggedInUser };
+
+      this.http.delete(`http://localhost:3000/groups/${this.group.name}/channels/${channel}`, { body: payload, withCredentials: true })
+        .subscribe({
+          next: (response) => {
+            console.log(`Channel "${channel}" deleted successfully.`);
+            // Remove the deleted channel from the channels list
+            this.channels = this.channels.filter(ch => ch !== channel);
+          },
+          error: (error) => {
+            console.error('Error deleting channel:', error);
+          }
+        });
     }
   }
 

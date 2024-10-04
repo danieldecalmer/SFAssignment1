@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './member-list.component.html',
-  styleUrl: './member-list.component.css'
+  styleUrls: ['./member-list.component.css'] // Changed to 'styleUrls' for consistency
 })
 export class MemberListComponent implements OnInit {
   members: any[] = [];
@@ -34,6 +34,7 @@ export class MemberListComponent implements OnInit {
     });
   }
 
+  // Load the current user session
   loadUserSession() {
     this.http.get<any>('http://localhost:3000/user-session', { withCredentials: true }).subscribe({
       next: (userData) => {
@@ -41,7 +42,7 @@ export class MemberListComponent implements OnInit {
         this.isSuperAdmin = userData.roles.includes('super');
         this.isGroupAdmin = this.isSuperAdmin || this.loggedInUser === this.groupAdmin;
         this.loadWaitingList();
-        this.loadOtherUsers(); // Load the "Other Users" who are not in the group
+        this.loadOtherUsers();
       },
       error: (error) => {
         console.error('Error loading user session:', error);
@@ -49,6 +50,7 @@ export class MemberListComponent implements OnInit {
     });
   }
 
+  // Load the group's waiting list
   loadWaitingList() {
     this.http.get<any>(`http://localhost:3000/groups/${this.groupName}/waiting-list`).subscribe({
       next: (waitingData) => {
@@ -60,11 +62,10 @@ export class MemberListComponent implements OnInit {
     });
   }
 
-  // Fetch all users and filter those who are not in the group
+  // Load users who are not part of the group
   loadOtherUsers() {
     this.http.get<any[]>('http://localhost:3000/users', { withCredentials: true }).subscribe({
       next: (allUsers: any[]) => {
-        // Filter out members who are already in the group
         this.otherUsers = allUsers.filter((user: { username: string }) => !this.members.includes(user.username));
       },
       error: (error) => {
@@ -73,13 +74,13 @@ export class MemberListComponent implements OnInit {
     });
   }
 
-
-  // Kick member (group admin only)
+  // Kick a member from the group
   onKickMember(member: string) {
     if (this.isGroupAdmin) {
       this.http.post(`http://localhost:3000/groups/${this.groupName}/kick`, { member }).subscribe({
         next: (response) => {
           console.log(response);
+          // Remove the kicked member from the members list
           this.members = this.members.filter(m => m !== member);
         },
         error: (error) => {
@@ -89,7 +90,7 @@ export class MemberListComponent implements OnInit {
     }
   }
 
-  // Promote member to group admin (group admin only)
+  // Promote a member to group admin
   onPromoteMember(member: string) {
     if (this.isGroupAdmin) {
       this.http.post(`http://localhost:3000/groups/${this.groupName}/promote`, { member }).subscribe({
@@ -103,12 +104,13 @@ export class MemberListComponent implements OnInit {
     }
   }
 
-  // Add a user from the waiting list to the group
+  // Add a member from the waiting list to the group
   onAddWaitingListMember(member: string) {
     if (this.isGroupAdmin) {
       this.http.post(`http://localhost:3000/groups/${this.groupName}/add-member`, { member }).subscribe({
         next: (response) => {
           console.log(response);
+          // Add the member to the group and remove them from the waiting list
           this.members.push(member);
           this.waitingList = this.waitingList.filter(m => m !== member);
         },
@@ -119,31 +121,24 @@ export class MemberListComponent implements OnInit {
     }
   }
 
-  // Add a user from the "Other Users" section to the group
+  // Add a user from the "Other Users" list to the group
   onAddOtherUser(member: string) {
     if (this.isGroupAdmin) {
       this.http.post(`http://localhost:3000/groups/${this.groupName}/add-member`, { member }).subscribe({
         next: (response) => {
           console.log(response);
-          
-          // Add to group members list
+          // Add the user to the members list and remove from the "Other Users" list
           this.members.push(member);
-          
-          // Remove from the otherUsers list immediately
-          this.otherUsers = this.otherUsers.filter(m => m.username !== member);
-          
-          // Optionally trigger change detection (if necessary)
-          // this.changeDetectorRef.detectChanges(); // Uncomment if you use ChangeDetectorRef
+          this.otherUsers = this.otherUsers.filter(user => user.username !== member);
         },
         error: (error) => {
-          console.error('Error adding member:', error);
+          console.error('Error adding user to group:', error);
         }
       });
     }
   }
 
-
-  // Navigate to Ban and Report with the username
+  // Navigate to the "Ban and Report" page for a specific member
   onBanAndReport(member: string) {
     const navigationExtras: NavigationExtras = {
       state: { username: member }
@@ -151,6 +146,7 @@ export class MemberListComponent implements OnInit {
     this.router.navigate(['ban-and-report'], navigationExtras);
   }
 
+  // Remove the logged-in user from the group
   onLeaveGroup() {
     if (!this.isSuperAdmin) {
       this.http.post(`http://localhost:3000/groups/${this.groupName}/leave`, { username: this.loggedInUser }).subscribe({
@@ -165,6 +161,7 @@ export class MemberListComponent implements OnInit {
     }
   }
 
+  // Navigate back to the groups list
   onBackToGroups() {
     this.router.navigate(['groups']);
   }

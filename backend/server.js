@@ -6,28 +6,75 @@ const fs = require('fs-extra'); // For reading and writing to JSON file
 const path = require('path');
 const app = express();
 const PORT = 3000;
+const { connectToDatabase } = require('./db');
 
-// Path to the JSON file
-const DATA_FILE_PATH = path.join(__dirname, 'data.json');
+let db, usersCollection, groupsCollection;
 
-// Helper function to load data from JSON file
-const loadData = () => {
+// Connect to MongoDB once when the server starts
+(async () => {
+  db = await connectToDatabase();
+  if (db) {
+    console.log('Database connected and server starting...');
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  } else {
+    console.error('Database connection failed. Server not started.');
+  }
+})();
+
+// Helper function to load data
+const loadData = async () => {
   try {
-    const data = fs.readFileSync(DATA_FILE_PATH, 'utf-8');
-    return JSON.parse(data);
+    // Assuming collections 'users', 'groups', and 'bannedList' exist in the MongoDB database.
+    const users = await db.collection('users').find({}).toArray(); // Fetch all users from 'users' collection
+    const groups = await db.collection('groups').find({}).toArray(); // Fetch all groups from 'groups' collection
+    const bannedList = await db.collection('bannedList').find({}).toArray(); // Fetch all banned users from 'bannedList' collection
+    
+    return { users, groups, bannedList };
   } catch (error) {
-    console.error("Error loading data:", error);
-    return { users: [], groups: [], bannedList: [] }; // Default structure
+    console.error("Error loading data from MongoDB:", error);
+    return { users: [], groups: [], bannedList: [] }; // Default structure if something goes wrong
   }
 };
 
-// Helper function to save data to JSON file
-const saveData = (data) => {
-  fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(data, null, 2), 'utf-8');
+// Helper function to save data
+const saveData = async (data) => {
+  try {
+    // Save users
+    for (let user of data.users) {
+      await db.collection('users').updateOne(
+        { id: user.id },
+        { $set: user },
+        { upsert: true } // Create a new user if one doesn't exist
+      );
+    }
+
+    // Save groups
+    for (let group of data.groups) {
+      await db.collection('groups').updateOne(
+        { id: group.id },
+        { $set: group },
+        { upsert: true } // Create a new group if one doesn't exist
+      );
+    }
+
+    // Save bannedList
+    for (let banned of data.bannedList) {
+      await db.collection('bannedList').updateOne(
+        { username: banned.username },
+        { $set: banned },
+        { upsert: true } // Create a new entry in bannedList if one doesn't exist
+      );
+    }
+  } catch (error) {
+    console.error("Error saving data to MongoDB:", error);
+  }
 };
 
-// Load initial data from file
-let { users, groups, bannedList } = loadData();
+
+// Load initial data
+let { users, groups, bannedList } = await loadData();
 
 app.use(express.json()); // Middleware to parse JSON bodies
 
@@ -55,13 +102,25 @@ app.get('/user-session', (req, res) => {
 });
 
 // Route to get all groups
-app.get('/groups', (req, res) => {
-  res.json(groups);
+app.get('/groups', async (req, res) => {
+  try {
+    const groups = await groupsCollection.find().toArray(); // Fetch all groups from MongoDB
+    res.json(groups);
+  } catch (error) {
+    console.error('Error fetching groups:', error);
+    res.status(500).json({ message: 'Failed to fetch groups' });
+  }
 });
 
 // Route to get all users (for listing all users)
-app.get('/users', (req, res) => {
-  res.status(200).json(users);
+app.get('/users', async (req, res) => {
+  try {
+    const users = await usersCollection.find().toArray(); // Fetch all users from MongoDB
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Failed to fetch users' });
+  }
 });
 
 // Route to add a new channel to a group
@@ -84,6 +143,43 @@ app.post('/groups/:groupName/channels', (req, res) => {
 
   res.status(201).json({ message: `Channel ${channel} added to group ${groupName} successfully!`, group });
 });
+
+// Route to delete a channel from a group
+app.delete('/groups/:groupName/channels/:channel', (req, res) => {
+  const { groupName, channel } = req.params;
+  const { username } = req.body;
+
+  // Find the group by name
+  const group = groups.find(g => g.name === groupName);
+  if (!group) {
+    return res.status(404).json({ message: `Group ${groupName} not found.` });
+  }
+
+  // Check if the user is a group admin or super admin
+  const user = users.find(u => u.username === username);
+  if (!user) {
+    return res.status(404).json({ message: `User ${username} not found.` });
+  }
+
+  if (!user.roles.includes('super') && !group.groupAdmins.includes(username)) {
+    return res.status(403).json({ message: `You are not authorized to delete channels in this group.` });
+  }
+
+  // Check if the channel exists in the group's channels
+  const channelIndex = group.channels.indexOf(channel);
+  if (channelIndex === -1) {
+    return res.status(404).json({ message: `Channel ${channel} not found in group ${groupName}.` });
+  }
+
+  // Remove the channel from the group's channels array
+  group.channels.splice(channelIndex, 1);
+
+  // Save the updated data to the JSON file
+  saveData({ users, groups, bannedList });
+
+  res.status(200).json({ message: `Channel ${channel} deleted from group ${groupName} successfully.` });
+});
+
 
 // Route to ban a user and submit the report
 app.post('/ban-user', (req, res) => {
@@ -131,6 +227,45 @@ app.post('/unban-user', (req, res) => {
 app.get('/banned-users', (req, res) => {
   res.status(200).json(bannedList);
 });
+
+// Route to kick a member from a group
+app.post('/groups/:groupName/kick', (req, res) => {
+  const { groupName } = req.params;
+  const { member } = req.body;
+
+  // Find the group by its name
+  const group = groups.find(g => g.name === groupName);
+  if (!group) {
+    return res.status(404).json({ message: `Group ${groupName} not found.` });
+  }
+
+  // Check if the member exists in the group
+  if (!group.members.includes(member)) {
+    return res.status(400).json({ message: `${member} is not a member of ${groupName}.` });
+  }
+
+  // Remove the member from the group's member list
+  group.members = group.members.filter(m => m !== member);
+
+  // If the member was the group admin, clear or reassign the group admin role
+  if (group.groupAdmin === member) {
+    group.groupAdmin = group.members.length > 0 ? group.members[0] : null; // Promote another member or set to null
+  }
+
+  // Optionally, update the user's group list (if you store this on the user object)
+  const user = users.find(u => u.username === member);
+  if (user) {
+    user.groups = user.groups.filter(g => g !== groupName);
+  }
+
+  // Save the updated group data to the JSON file
+  saveData({ users, groups, bannedList });
+
+  // Respond with success
+  res.status(200).json({ message: `${member} has been removed from ${groupName}.` });
+});
+
+
 
 // Route to add user to a group's waiting list
 app.post('/groups/:groupName/register-interest', (req, res) => {
@@ -410,6 +545,3 @@ app.post('/logout', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});

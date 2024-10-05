@@ -458,6 +458,11 @@ app.post('/groups/:groupName/leave', async (req, res) => {
       { returnDocument: 'after' } // Return the updated document
     );
 
+    // Check if the updated group document exists
+    if (!updatedGroup.value) {
+      return res.status(404).json({ message: `Group ${groupName} not found or user could not be removed.` });
+    }
+
     // Check if the user was the group admin
     if (updatedGroup.value.groupAdmin === username) {
       const newAdmin = updatedGroup.value.members.length > 0 ? updatedGroup.value.members[0] : null;

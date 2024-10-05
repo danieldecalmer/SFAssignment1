@@ -13,14 +13,21 @@ let db, usersCollection, groupsCollection;
 
 // Connect to MongoDB once when the server starts
 (async () => {
-  db = await connectToDatabase();
-  if (db) {
-    console.log('Database connected and server starting...');
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
-  } else {
-    console.error('Database connection failed. Server not started.');
+  try {
+    db = await connectToDatabase(); // Assuming this is a function that connects to MongoDB
+    usersCollection = db.collection('users'); // Initialize usersCollection
+    groupsCollection = db.collection('groups'); // Initialize groupsCollection
+
+    if (db) {
+      console.log('Database connected and server starting...');
+      app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+      });
+    } else {
+      console.error('Database connection failed. Server not started.');
+    }
+  } catch (error) {
+    console.error('Failed to connect to MongoDB:', error);
   }
 })();
 
@@ -117,11 +124,10 @@ app.get('/groups', async (req, res) => {
   }
 });
 
-
 // Route to get all users (for listing all users)
 app.get('/users', async (req, res) => {
   try {
-    const users = await usersCollection.find().toArray(); // Fetch all users from MongoDB
+    const users = await usersCollection.find({}).toArray(); // Fetch all users from MongoDB
     res.status(200).json(users);
   } catch (error) {
     console.error('Error fetching users:', error);

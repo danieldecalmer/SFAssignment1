@@ -7,9 +7,22 @@ const path = require('path');
 const app = express();
 const PORT = 3000;
 const { connectToDatabase } = require('./db');
+const { Server } = require("socket.io");
+const http = require('http');
+const server = http.createServer(app);
 
+
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:4200', // Allow requests from this origin
+    methods: ['GET', 'POST'],        // Allow these methods
+    credentials: true                // Allow credentials
+  }
+});
 
 let db, usersCollection, groupsCollection;
+// Map to store chat history
+let chatHistory = {};
 
 // Connect to MongoDB once when the server starts
 (async () => {
@@ -20,9 +33,6 @@ let db, usersCollection, groupsCollection;
 
     if (db) {
       console.log('Database connected and server starting...');
-      app.listen(PORT, () => {
-        console.log(`Server running on http://localhost:${PORT}`);
-      });
     } else {
       console.error('Database connection failed. Server not started.');
     }
@@ -30,6 +40,45 @@ let db, usersCollection, groupsCollection;
     console.error('Failed to connect to MongoDB:', error);
   }
 })();
+
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  // Handle user joining a specific group/channel
+  socket.on('joinChannel', ({ group, channel }) => {
+    const room = `${group}-${channel}`;
+    socket.join(room);
+
+    // Send existing chat history to the user
+    if (chatHistory[room]) {
+      socket.emit('chatHistory', chatHistory[room]);
+    } else {
+      chatHistory[room] = [];
+    }
+  });
+
+  // Handle incoming messages
+  socket.on('sendMessage', ({ group, channel, message }) => {
+    const room = `${group}-${channel}`;
+    const newMessage = { text: message, timestamp: new Date() };
+    
+    // Save the message to chat history
+    chatHistory[room].push(newMessage);
+
+    // Broadcast the message to everyone in the room
+    io.to(room).emit('newMessage', newMessage);
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
+
+// Start the server to use the http server with Socket.io
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
 
 // Helper function to load data
 const loadData = async () => {

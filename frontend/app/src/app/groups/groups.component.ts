@@ -39,7 +39,6 @@ export class GroupsComponent implements OnInit {
       next: (userData) => {
         this.user = userData;
         this.isSuperAdmin = this.user.roles.includes('super'); // Check if the user is a super admin
-        const baseUrl = 'http://localhost:3000/';
         this.user.profilePicture = `${this.user.profilePicture.replace(/^\//, '')}`;
         
         console.log('User session loaded:', this.user);

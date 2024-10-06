@@ -71,18 +71,28 @@ io.on('connection', (socket) => {
   socket.on('message', async (data) => {
     const { group, channel, sender, message } = data;
 
-    // Store the message in MongoDB
-    await messagesCollection.insertOne({
-      group,
-      channel,
-      sender,
-      message,
-      timestamp: new Date()
-    });
+    try {
+      // Fetch sender's profile picture from the users collection
+      const user = await usersCollection.findOne({ username: sender });
+      const profilePicture = user?.profilePicture || 'uploads/profile-pictures/default-profile.png'; // Use default if none
 
-    console.log('Message stored in MongoDB:', data);
-    // Emit the message to all clients in the same channel
-    io.to(channel).emit('new-message', data);
+      // Store the message in MongoDB
+      await messagesCollection.insertOne({
+        group,
+        channel,
+        sender,
+        message,
+        profilePicture, // Include the profile picture in the message document
+        timestamp: new Date()
+      });
+
+      console.log('Message stored in MongoDB:', data);
+
+      // Emit the message to all clients in the same channel, including the profile picture
+      io.to(channel).emit('new-message', { ...data, profilePicture });
+    } catch (error) {
+      console.error('Error handling message:', error);
+    }
   });
 
   // Join a specific channel
@@ -97,7 +107,7 @@ io.on('connection', (socket) => {
       // Convert the cursor to an array using async/await
       const messages = await cursor.toArray();
 
-      // Send chat history to the client
+      // Send chat history to the client, messages will include profile pictures
       socket.emit('chat-history', messages);
       console.log('Chat history sent to client:', messages);
     } catch (error) {
@@ -105,13 +115,12 @@ io.on('connection', (socket) => {
     }
   });
 
-
-
   // Handle disconnection
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
 });
+
 
 // Start the server to use the http server with Socket.io
 server.listen(PORT, () => {

@@ -2,9 +2,11 @@
     <h1>{{ channel }}</h1>
     <div class="chat-window">
       <div *ngFor="let msg of messages">
+        <img [src]="getProfilePictureUrl(msg.profilePicture)" alt="Profile Picture" class="profile-pic"/>
         <strong>{{ msg.sender }}:</strong> {{ msg.message }} <br/>
         <small>{{ msg.timestamp | date:'short' }}</small> <!-- Format the timestamp properly -->
       </div>
+      
     </div>
     <div class="message-input">
       <input [(ngModel)]="newMessage" type="text" placeholder="Type a message..." />

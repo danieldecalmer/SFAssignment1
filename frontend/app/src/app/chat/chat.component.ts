@@ -99,4 +99,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.socket.disconnect(); // Clean up the socket connection
   }
+
+  getProfilePictureUrl(picturePath: string): string {
+    return `http://localhost:3000/${picturePath}`;
+  }
 }

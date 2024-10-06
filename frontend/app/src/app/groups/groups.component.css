@@ -19,3 +19,17 @@
     margin-top: 20px;
   }
   
+  .profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%; /* Make the picture circular */
+    object-fit: cover; /* Ensure the image scales and fits properly */
+    border: 2px solid #ddd;
+  }
+  
+  .change-pfp-btn {
+    margin-top: 10px;
+  }
+  
+  
+  

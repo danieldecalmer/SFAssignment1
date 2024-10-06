@@ -39,6 +39,15 @@ export class GroupsComponent implements OnInit {
       next: (userData) => {
         this.user = userData;
         this.isSuperAdmin = this.user.roles.includes('super'); // Check if the user is a super admin
+        const baseUrl = 'http://localhost:3000/';
+        this.user.profilePicture = `${this.user.profilePicture.replace(/^\//, '')}`;
+        
+        console.log('User session loaded:', this.user);
+        // If the user doesn't have a profile picture, assign a default one
+        if (!this.user.profilePicture) {
+          this.user.profilePicture = 'uploads/profile-pictures/default-profile.png';
+        }
+  
         this.checkUserPermissions();
         this.loadGroups();
       },
@@ -46,6 +55,7 @@ export class GroupsComponent implements OnInit {
         console.error('Error loading user session:', error);
       }
     });
+    console.log(this.user);
   }
 
   loadGroups() {
@@ -162,4 +172,43 @@ export class GroupsComponent implements OnInit {
       }
     });
   }
+  
+  changeProfilePicture() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+  
+    fileInput.onchange = (event: any) => {
+      const file = event.target.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('profilePicture', file);
+        console.log('Profile Picture:', formData.get('profilePicture'));
+  
+        this.http.post('http://localhost:3000/upload-profile-picture', formData, { withCredentials: true }).subscribe({
+          next: (response: any) => {
+            console.log('Profile picture uploaded successfully:', response);
+            this.user.profilePicture = response.profilePicture; // Update local profile picture reference
+          },
+          error: (error) => {
+            console.error('Error uploading profile picture:', error);
+          }
+        });
+      }
+    };
+  
+    fileInput.click();
+  }
+
+  get profilePictureUrl(): string {
+    console.log('Profile Picture URL:', `http://localhost:3000/${this.user.profilePicture}`);
+    // If no profile picture exists, return a default image
+    if (this.user.profilePicture == '') {
+      return 'uploads/profile-pictures/default-profile.png';
+    }
+  
+    // Otherwise, return the path to the user's profile picture from the backend
+    return `http://localhost:3000/${this.user.profilePicture}`;
+  }
+  
 }

@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 const { v4: uuidv4 } = require('uuid');
-const fs = require('fs-extra'); // For reading and writing to JSON file
+const fs = require('fs'); // For reading and writing to JSON file
 const path = require('path');
 const app = express();
 const PORT = 3000;
@@ -10,7 +10,29 @@ const { connectToDatabase } = require('./db');
 const { Server } = require("socket.io");
 const http = require('http');
 const server = http.createServer(app);
+const multer = require('multer');
 
+// Define the directory for profile pictures
+const uploadDir = path.join(__dirname, 'uploads/profile-pictures');
+
+// Check if the directory exists, if not, create it
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });  // Create directory recursively
+}
+
+
+// Configure multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
+  }
+});
+
+const upload = multer({ storage: storage });
 
 const io = new Server(server, {
   cors: {
@@ -703,7 +725,8 @@ app.post('/register', async (req, res) => {
       password: password,
       email: email,
       roles: [],
-      groups: []
+      groups: [],
+      profilePicture: '',
     };
 
     // Insert the new user into the 'users' collection
@@ -731,7 +754,8 @@ app.post('/login', async (req, res) => {
         id: user.id,
         username: user.username,
         roles: user.roles,
-        groups: user.groups
+        groups: user.groups,
+        profilePicture: user.profilePicture
       };
 
       // Respond with success
@@ -802,7 +826,6 @@ app.post('/reset', async (req, res) => {
   }
 });
 
-
 // Route to log out the user and destroy the session
 app.post('/logout', (req, res) => {
   req.session.destroy(err => {
@@ -814,4 +837,27 @@ app.post('/logout', (req, res) => {
   });
 });
 
+// Route to upload files
+app.use('/uploads', express.static('uploads'));
+
+// Route to upload profile picture
+app.post('/upload-profile-picture', upload.single('profilePicture'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+
+  const relativePath = `uploads/profile-pictures/${req.file.filename}`;
+
+  // Update user's profile picture in the database
+  usersCollection.updateOne(
+    { username: req.session.user.username },
+    { $set: { profilePicture: relativePath } }
+  )
+  .then(() => {
+    res.json({ message: 'Profile picture uploaded successfully', profilePicture: relativePath });
+  })
+  .catch(err => {
+    res.status(500).json({ message: 'Error updating profile picture', error: err });
+  });
+});
 

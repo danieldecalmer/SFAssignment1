@@ -15,11 +15,18 @@ const multer = require('multer');
 // Define the directory for profile pictures
 const uploadDir = path.join(__dirname, 'uploads/profile-pictures');
 
+// Define directory for general image uploads (messages)
+const imageUploadDir = path.join(__dirname, 'uploads/message-images');
+
 // Check if the directory exists, if not, create it
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });  // Create directory recursively
 }
 
+// Check if the directory exists, if not, create it
+if (!fs.existsSync(imageUploadDir)) {
+  fs.mkdirSync(imageUploadDir, { recursive: true });
+}
 
 // Configure multer storage
 const storage = multer.diskStorage({
@@ -32,7 +39,20 @@ const storage = multer.diskStorage({
   }
 });
 
+// Configure multer storage for general image uploads (messages)
+const imageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, imageUploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
+  }
+});
+
 const upload = multer({ storage: storage });
+
+const uploadImage = multer({ storage: imageStorage });
 
 const io = new Server(server, {
   cors: {
@@ -869,4 +889,38 @@ app.post('/upload-profile-picture', upload.single('profilePicture'), (req, res) 
     res.status(500).json({ message: 'Error updating profile picture', error: err });
   });
 });
+
+// Handle image uploads for messages
+app.post('/upload-image', uploadImage.single('file'), async (req, res) => {
+  const { group, channel, sender, timestamp } = req.body;
+  const imageUrl = `uploads/message-images/${req.file.filename}`;
+
+  try {
+    // Fetch sender's profile picture from the users collection
+    const user = await usersCollection.findOne({ username: sender });
+    const profilePicture = user?.profilePicture || 'uploads/profile-pictures/default-profile.png'; // Use default if none
+
+    // Store the image message in MongoDB
+    await messagesCollection.insertOne({
+      group,
+      channel,
+      sender,
+      imageUrl, // Store the image URL
+      profilePicture, // Include the profile picture in the image message
+      message: '', // No text message, just the image
+      timestamp: new Date(timestamp)
+    });
+
+    console.log('Image message stored in database:', { group, channel, sender, imageUrl });
+
+    // Emit the image message to the clients in the same channel
+    io.to(channel).emit('new-message', { sender, imageUrl, profilePicture, timestamp });
+
+    res.status(200).send('Image uploaded successfully');
+  } catch (error) {
+    console.error('Error handling image upload:', error);
+    res.status(500).send('Error uploading image');
+  }
+});
+
 

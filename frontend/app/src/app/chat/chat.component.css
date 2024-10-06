@@ -1,36 +1,78 @@
+/* Overall container for chat */
 .chat-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
+/* Window where chat messages are displayed */
 .chat-window {
     flex-grow: 1;
     overflow-y: auto;
+    height: 400px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
 }
 
+/* Each individual message */
+.message {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px; /* Space between each message */
+}
+
+/* Profile picture styling */
+.profile-pic {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 10px; /* Space between profile picture and sender's name */
+}
+
+/* Sender's name */
+.message strong {
+    margin-right: 5px; /* Space between sender's name and message */
+}
+
+/* Styling for images sent as messages */
+.sent-image {
+    max-width: 100%; /* Ensure image does not exceed the container's width */
+    height: auto;
+    margin-top: 10px; /* Space between image and sender's name */
+    border-radius: 8px;
+}
+
+/* Timestamp styling */
+.timestamp {
+    margin-left: 5px;
+    color: #888;
+    display: block;
+    margin-top: 5px; /* Space between message/image and timestamp */
+}
+
+/* Input section for sending messages */
 .message-input {
     display: flex;
+    gap: 10px;
     padding: 10px;
 }
 
-.message-input input {
+/* Input field for typing messages */
+.message-input input[type="text"] {
     flex-grow: 1;
     margin-right: 10px;
 }
 
+/* Send button styling */
 .message-input button {
     padding: 10px 20px;
 }
-.profile-pic {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-    object-fit: cover;
-}
-.message {
-display: flex;
-align-items: center;
-margin-bottom: 10px;
+
+/* Back button */
+.back-btn {
+    margin-top: 10px;
 }

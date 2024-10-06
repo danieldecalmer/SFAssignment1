@@ -1,17 +1,33 @@
 <div class="chat-container">
-    <h1>{{ channel }}</h1>
-    <div class="chat-window">
-      <div *ngFor="let msg of messages">
-        <img [src]="getProfilePictureUrl(msg.profilePicture)" alt="Profile Picture" class="profile-pic"/>
-        <strong>{{ msg.sender }}:</strong> {{ msg.message }} <br/>
-        <small>{{ msg.timestamp | date:'short' }}</small> <!-- Format the timestamp properly -->
-      </div>
-      
+  <h1>{{ channel }}</h1>
+
+  <div class="chat-window">
+    <!-- Loop through messages -->
+    <div *ngFor="let msg of messages" class="message">
+      <!-- Always render the profile picture -->
+      <img [src]="getProfilePictureUrl(msg.profilePicture)" alt="Profile Picture" class="profile-pic"/>
+      <strong>{{ msg.sender }}:</strong>
+
+      <!-- Conditionally display image message or text message -->
+      <ng-container *ngIf="msg.imageUrl; else textMessage">
+        <div class="image-message">
+          <img [src]="'http://localhost:3000/' + msg.imageUrl" alt="Image" class="sent-image" loading="lazy" />
+        </div>
+      </ng-container>
+      <ng-template #textMessage>{{ msg.message }}</ng-template>
+
+      <br/>
+      <small class="timestamp">{{ msg.timestamp | date:'short' }}</small> <!-- Format the timestamp properly -->
     </div>
-    <div class="message-input">
-      <input [(ngModel)]="newMessage" type="text" placeholder="Type a message..." />
-      <button (click)="sendMessage()">Send</button>
-    </div>
-    <button class="back-btn" (click)="onBackToChannels()">Back to Channels</button> <!-- Back button -->
   </div>
-  
+
+  <!-- Message input section -->
+  <div class="message-input">
+    <input [(ngModel)]="newMessage" type="text" placeholder="Type a message..." />
+    <input type="file" (change)="onFileSelected($event)" accept="image/*" /> <!-- File input for images -->
+    <button (click)="sendMessage()">Send</button>
+  </div>
+
+  <!-- Back button -->
+  <button class="back-btn" (click)="onBackToChannels()">Back to Channels</button>
+</div>

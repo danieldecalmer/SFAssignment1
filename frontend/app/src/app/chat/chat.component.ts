@@ -20,6 +20,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   messages: any[] = []; // To store chat messages
   newMessage: string = ''; // Model for the new message input
   loggedInUser: string = ''; // Track the logged-in user
+  selectedFile: File | null = null; // Store selected image file for upload
 
   constructor(
     private route: ActivatedRoute,
@@ -39,12 +40,12 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.group = group;
         this.channel = channel;
 
-        // Client-side: Emitting group and channel correctly
+        // Emit group and channel info to join the correct channel
         this.socket.emit('joinChannel', { group: this.group.name, channel: this.channel });
 
         // Listen for chat history
         this.socket.on('chat-history', (history: any[]) => {
-          this.messages = history; // Load chat history
+          this.messages = history;
         });
 
         // Listen for new messages
@@ -55,7 +56,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Proper implementation to load user session data from the backend
+  // Load user session data from the backend
   loadUserSession() {
     this.http.get<any>('http://localhost:3000/user-session', { withCredentials: true }).subscribe({
       next: (userData) => {
@@ -64,31 +65,53 @@ export class ChatComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error loading user session:', error);
-        // Optionally, you can redirect to login if user is not logged in
-        this.router.navigate(['/login']);
+        this.router.navigate(['/login']); // Redirect to login if user is not logged in
       }
     });
   }
 
-  // Handle sending messages
-  sendMessage() {
-    if (this.newMessage.trim()) {
-      const messageData = {
-        group: this.group.name,
-        channel: this.channel,
-        sender: this.loggedInUser,
-        message: this.newMessage,
-        timestamp: new Date()
-      };
+  // Handle file selection (image upload)
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+    }
+  }
 
-      // Emit 'message' event to the server with the message data
-      this.socket.emit('message', messageData);
+  // Handle sending messages (both text and image)
+  sendMessage(): void {
+    if (this.newMessage.trim() || this.selectedFile) {
+      if (this.selectedFile) {
+        const formData = new FormData();
+        formData.append('file', this.selectedFile);
+        formData.append('group', this.group.name);
+        formData.append('channel', this.channel);
+        formData.append('sender', this.loggedInUser);
+        formData.append('timestamp', new Date().toISOString());
+
+        // Send image message to the backend
+        this.http.post('http://localhost:3000/upload-image', formData).subscribe(() => {
+          this.selectedFile = null; // Clear the file after upload
+        });
+      } else {
+        // Send text message
+        const messageData = {
+          group: this.group.name,
+          channel: this.channel,
+          sender: this.loggedInUser,
+          message: this.newMessage,
+          timestamp: new Date()
+        };
+
+        this.socket.emit('message', messageData); // Emit text message to the server
+      }
+
       this.newMessage = ''; // Clear input after sending
     }
   }
 
   // Go back to the list of channels
-  onBackToChannels() {
+  onBackToChannels(): void {
     const navigationExtras: NavigationExtras = {
       state: { group: this.group }
     };
@@ -100,6 +123,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.socket.disconnect(); // Clean up the socket connection
   }
 
+  // Helper to get profile picture URL
   getProfilePictureUrl(picturePath: string): string {
     return `http://localhost:3000/${picturePath}`;
   }

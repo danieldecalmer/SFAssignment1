@@ -64,20 +64,26 @@ io.on('connection', (socket) => {
   });
 
   // Join a specific channel
-  socket.on('joinChannel', (channel) => {
-    socket.join(channel);
-    console.log(`${socket.id} joined channel: ${channel}`);
+  socket.on('joinChannel', async ({ group, channel }) => {
+    try {
+      socket.join(channel);
+      console.log(`${socket.id} joined channel: ${group}-${channel}`);
 
-    // Fetch and send chat history to the client when they join the channel
-    messagesCollection.find({ channel }).toArray((err, messages) => {
-      if (err) {
-        console.error('Error fetching messages:', err);
-      } else {
-        socket.emit('chat-history', messages); // Send chat history to the client
-        console.log('Chat history sent to client:', messages);
-      }
-    });
+      // Fetch the chat history from MongoDB
+      const cursor = db.collection('messages').find({ group: group, channel: channel });
+
+      // Convert the cursor to an array using async/await
+      const messages = await cursor.toArray();
+
+      // Send chat history to the client
+      socket.emit('chat-history', messages);
+      console.log('Chat history sent to client:', messages);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
   });
+
+
 
   // Handle disconnection
   socket.on('disconnect', () => {
@@ -175,7 +181,6 @@ app.get('/groups', async (req, res) => {
     const groupsCollection = db.collection('groups');
     const groups = await groupsCollection.find({}).toArray();
     
-    console.log("Groups fetched successfully:", groups);
     res.json(groups);
   } catch (error) {
     console.error('Error fetching groups:', error);

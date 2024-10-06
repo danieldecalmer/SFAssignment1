@@ -39,9 +39,8 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.group = group;
         this.channel = channel;
 
-        // Join the group-channel room
-        this.socket.emit('joinChannel', `${this.group.name}-${this.channel}`); // Send as a single string (e.g., 'group1-general')
-
+        // Client-side: Emitting group and channel correctly
+        this.socket.emit('joinChannel', { group: this.group.name, channel: this.channel });
 
         // Listen for chat history
         this.socket.on('chat-history', (history: any[]) => {

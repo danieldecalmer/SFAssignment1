@@ -8,7 +8,6 @@ async function connectToDatabase() {
   if (!db) { // Only connect once
     try {
       await client.connect(); // Connect to MongoDB server
-      console.log('Connected to MongoDB');
       db = client.db('DanielChatDatabase'); // Set database
     } catch (err) {
       console.error('Failed to connect to MongoDB:', err);

@@ -127,4 +127,12 @@ export class ChatComponent implements OnInit, OnDestroy {
   getProfilePictureUrl(picturePath: string): string {
     return `http://localhost:3000/${picturePath}`;
   }
+
+  // Start video chat by navigating to the video chat component
+  startVideoChat(): void {
+    const navigationExtras: NavigationExtras = {
+      state: { group: this.group, channel: this.channel }
+    };
+    this.router.navigate(['/video-chat'], navigationExtras); // Navigate to video chat
+  }
 }

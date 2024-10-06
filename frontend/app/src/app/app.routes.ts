@@ -9,6 +9,7 @@ import { CreateNewChannelComponent } from './create-new-channel/create-new-chann
 import { CreateNewGroupComponent } from './create-new-group/create-new-group.component';
 import { BanListComponent } from './ban-list/ban-list.component';
 import { BanAndReportComponent } from './ban-and-report/ban-and-report.component';
+import { VideoChatComponent } from './video-chat/video-chat.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/login', pathMatch: 'full' }, 
@@ -22,4 +23,5 @@ export const routes: Routes = [
     { path: 'create-new-group', component: CreateNewGroupComponent },
     { path: 'ban-list', component: BanListComponent },
     { path: 'ban-and-report', component: BanAndReportComponent },
+    { path: 'video-chat', component: VideoChatComponent },
 ];

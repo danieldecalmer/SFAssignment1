@@ -20,7 +20,7 @@ const io = new Server(server, {
   }
 });
 
-let db, usersCollection, groupsCollection;
+let db, usersCollection, groupsCollection, messagesCollection;
 // Map to store chat history
 let chatHistory = {};
 
@@ -30,6 +30,7 @@ let chatHistory = {};
     db = await connectToDatabase(); // Assuming this is a function that connects to MongoDB
     usersCollection = db.collection('users'); // Initialize usersCollection
     groupsCollection = db.collection('groups'); // Initialize groupsCollection
+    messagesCollection = db.collection('messages'); // Initialize messagesCollection
 
     if (db) {
       console.log('Database connected and server starting...');
@@ -44,29 +45,38 @@ let chatHistory = {};
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  // Handle user joining a specific group/channel
-  socket.on('joinChannel', ({ group, channel }) => {
-    const room = `${group}-${channel}`;
-    socket.join(room);
+  // Listen for 'message' event
+  socket.on('message', async (data) => {
+    const { group, channel, sender, message } = data;
 
-    // Send existing chat history to the user
-    if (chatHistory[room]) {
-      socket.emit('chatHistory', chatHistory[room]);
-    } else {
-      chatHistory[room] = [];
-    }
+    // Store the message in MongoDB
+    await messagesCollection.insertOne({
+      group,
+      channel,
+      sender,
+      message,
+      timestamp: new Date()
+    });
+
+    console.log('Message stored in MongoDB:', data);
+    // Emit the message to all clients in the same channel
+    io.to(channel).emit('new-message', data);
   });
 
-  // Handle incoming messages
-  socket.on('sendMessage', ({ group, channel, message }) => {
-    const room = `${group}-${channel}`;
-    const newMessage = { text: message, timestamp: new Date() };
-    
-    // Save the message to chat history
-    chatHistory[room].push(newMessage);
+  // Join a specific channel
+  socket.on('joinChannel', (channel) => {
+    socket.join(channel);
+    console.log(`${socket.id} joined channel: ${channel}`);
 
-    // Broadcast the message to everyone in the room
-    io.to(room).emit('newMessage', newMessage);
+    // Fetch and send chat history to the client when they join the channel
+    messagesCollection.find({ channel }).toArray((err, messages) => {
+      if (err) {
+        console.error('Error fetching messages:', err);
+      } else {
+        socket.emit('chat-history', messages); // Send chat history to the client
+        console.log('Chat history sent to client:', messages);
+      }
+    });
   });
 
   // Handle disconnection

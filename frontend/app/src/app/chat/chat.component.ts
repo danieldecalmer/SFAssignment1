@@ -4,26 +4,34 @@ import { CommonModule } from '@angular/common';
 import { NavigationExtras } from '@angular/router';
 import { io, Socket } from 'socket.io-client'; // Import Socket.io
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './chat.component.html',
-  styleUrl: './chat.component.css'
+  styleUrls: ['./chat.component.css']
 })
 export class ChatComponent implements OnInit, OnDestroy {
   group: any = {};
   channel: string = '';
-  socket: Socket; // Socket instance
+  socket!: Socket; // Socket instance
   messages: any[] = []; // To store chat messages
   newMessage: string = ''; // Model for the new message input
+  loggedInUser: string = ''; // Track the logged-in user
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient // Inject HttpClient
+  ) {
     this.socket = io('http://localhost:3000'); // Connect to the server
   }
 
   ngOnInit(): void {
+    this.loadUserSession();
+
     this.route.paramMap.subscribe(() => {
       const group = window.history.state.group;
       const channel = window.history.state.channel;
@@ -32,16 +40,33 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.channel = channel;
 
         // Join the group-channel room
-        this.socket.emit('joinChannel', { group: this.group.name, channel: this.channel });
+        this.socket.emit('joinChannel', `${this.group.name}-${this.channel}`); // Send as a single string (e.g., 'group1-general')
 
-        // Listen for chat history and new messages
-        this.socket.on('chatHistory', (history: any[]) => {
+
+        // Listen for chat history
+        this.socket.on('chat-history', (history: any[]) => {
           this.messages = history; // Load chat history
         });
 
-        this.socket.on('newMessage', (message: any) => {
+        // Listen for new messages
+        this.socket.on('new-message', (message: any) => {
           this.messages.push(message); // Append new message to chat
         });
+      }
+    });
+  }
+
+  // Proper implementation to load user session data from the backend
+  loadUserSession() {
+    this.http.get<any>('http://localhost:3000/user-session', { withCredentials: true }).subscribe({
+      next: (userData) => {
+        this.loggedInUser = userData.username; // Set the logged-in user's username
+        console.log('User session loaded:', userData);
+      },
+      error: (error) => {
+        console.error('Error loading user session:', error);
+        // Optionally, you can redirect to login if user is not logged in
+        this.router.navigate(['/login']);
       }
     });
   }
@@ -49,15 +74,20 @@ export class ChatComponent implements OnInit, OnDestroy {
   // Handle sending messages
   sendMessage() {
     if (this.newMessage.trim()) {
-      this.socket.emit('sendMessage', {
+      const messageData = {
         group: this.group.name,
         channel: this.channel,
+        sender: this.loggedInUser, // Include sender's username
         message: this.newMessage
-      });
+      };
+
+      // Emit 'message' event to the server with the message data
+      this.socket.emit('message', messageData);
       this.newMessage = ''; // Clear input after sending
     }
   }
 
+  // Go back to the list of channels
   onBackToChannels() {
     const navigationExtras: NavigationExtras = {
       state: { group: this.group }
@@ -65,7 +95,8 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.router.navigate(['channels'], navigationExtras);
   }
 
+  // Disconnect from the socket when the component is destroyed
   ngOnDestroy(): void {
-    this.socket.disconnect(); // Disconnect from the socket when the component is destroyed
+    this.socket.disconnect(); // Clean up the socket connection
   }
 }

@@ -1,16 +1,15 @@
 <div class="chat-container">
     <h1>{{ channel }}</h1>
     <div class="chat-window">
-      <div *ngFor="let message of messages">
-        <p>{{ message.text }} <small>{{ message.timestamp | date:'short' }}</small></p>
+      <div *ngFor="let msg of messages">
+        <strong>{{ msg.sender }}:</strong> {{ msg.message }} <br/>
+        <small>{{ msg.timestamp | date:'short' }}</small> <!-- Format the timestamp properly -->
       </div>
     </div>
-  
     <div class="message-input">
       <input [(ngModel)]="newMessage" type="text" placeholder="Type a message..." />
       <button (click)="sendMessage()">Send</button>
     </div>
-  
-    <button class="back-btn" (click)="onBackToChannels()">Back to Channels</button>
+    <button class="back-btn" (click)="onBackToChannels()">Back to Channels</button> <!-- Back button -->
   </div>
   

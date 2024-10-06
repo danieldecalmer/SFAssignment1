@@ -77,7 +77,8 @@ export class ChatComponent implements OnInit, OnDestroy {
         group: this.group.name,
         channel: this.channel,
         sender: this.loggedInUser, // Include sender's username
-        message: this.newMessage
+        message: this.newMessage,
+        timestamp: new Date()
       };
 
       // Emit 'message' event to the server with the message data

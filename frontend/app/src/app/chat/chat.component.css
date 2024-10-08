@@ -147,3 +147,9 @@
 .video-btn:hover {
     background-color: #218838;
 }
+
+.system-message {
+    color: #888; /* Gray color for system messages */
+    font-style: italic;
+  }
+  

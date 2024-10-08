@@ -32,29 +32,52 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadUserSession();
-
+  
     this.route.paramMap.subscribe(() => {
       const group = window.history.state.group;
       const channel = window.history.state.channel;
       if (group && channel) {
         this.group = group;
         this.channel = channel;
-
+  
         // Emit group and channel info to join the correct channel
-        this.socket.emit('joinChannel', { group: this.group.name, channel: this.channel });
-
+        this.socket.emit('joinChannel', { group: this.group.name, channel: this.channel, username: this.loggedInUser });
+  
         // Listen for chat history
         this.socket.on('chat-history', (history: any[]) => {
           this.messages = history;
         });
-
+  
         // Listen for new messages
         this.socket.on('new-message', (message: any) => {
           this.messages.push(message); // Append new message to chat
         });
+  
+        // Listen for user joined notifications
+        this.socket.on('user-joined', (data: { username: string }) => {
+          const joinMessage = {
+            sender: 'System',
+            message: `${data.username} has joined the chat.`,
+            timestamp: new Date(),
+            profilePicture: 'uploads/profile-pictures/default-profile.png'
+          };
+          this.messages.push(joinMessage);
+        });
+  
+        // Listen for user left notifications
+        this.socket.on('user-left', (data: { username: string }) => {
+          const leaveMessage = {
+            sender: 'System',
+            message: `${data.username} has left the chat.`,
+            timestamp: new Date(),
+            profilePicture: 'uploads/profile-pictures/default-profile.png'
+          };
+          this.messages.push(leaveMessage);
+        });
       }
     });
   }
+  
 
   // Load user session data from the backend
   loadUserSession() {

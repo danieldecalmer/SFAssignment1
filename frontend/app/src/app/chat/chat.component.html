@@ -3,13 +3,14 @@
 
   <div class="chat-window">
     <!-- Loop through messages -->
-    <div *ngFor="let msg of messages" class="message">
+    <div *ngFor="let msg of messages" class="message" [ngClass]="{'system-message': msg.sender === 'System'}">
       <!-- Always render the profile picture -->
-      <img [src]="getProfilePictureUrl(msg.profilePicture)" alt="Profile Picture" class="profile-pic"/>
-      <strong>{{ msg.sender }}:</strong>
+      <img [src]="getProfilePictureUrl(msg.profilePicture)" alt="Profile Picture" class="profile-pic" *ngIf="msg.sender !== 'System'"/>
+      <strong *ngIf="msg.sender !== 'System'">{{ msg.sender }}:</strong>
 
-      <!-- Conditionally display image message or text message -->
-      <ng-container *ngIf="msg.imageUrl; else textMessage">
+      <!-- Display system message or regular message -->
+      <span *ngIf="msg.sender === 'System'">{{ msg.message }}</span>
+      <ng-container *ngIf="msg.imageUrl && msg.sender !== 'System'; else textMessage">
         <div class="image-message">
           <img [src]="'http://localhost:3000/' + msg.imageUrl" alt="Image" class="sent-image" loading="lazy" />
         </div>

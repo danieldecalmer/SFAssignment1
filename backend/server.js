@@ -116,17 +116,21 @@ io.on('connection', (socket) => {
   });
 
   // Join a specific channel
-  socket.on('joinChannel', async ({ group, channel }) => {
+  socket.on('joinChannel', async ({ group, channel, username }) => {
     try {
       socket.join(channel);
-      console.log(`${socket.id} joined channel: ${group}-${channel}`);
-
+      socket.username = username; // Store the username on the socket object
+      console.log(`${username} (ID: ${socket.id}) joined channel: ${group}-${channel}`);
+  
+      // Notify other users in the channel that a new user has joined
+      socket.broadcast.to(channel).emit('user-joined', { username });
+  
       // Fetch the chat history from MongoDB
       const cursor = db.collection('messages').find({ group: group, channel: channel });
-
+  
       // Convert the cursor to an array using async/await
       const messages = await cursor.toArray();
-
+  
       // Send chat history to the client, messages will include profile pictures
       socket.emit('chat-history', messages);
       console.log('Chat history sent to client:', messages);
@@ -134,12 +138,18 @@ io.on('connection', (socket) => {
       console.error('Error fetching messages:', error);
     }
   });
-
+  
   // Handle disconnection
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
+
+    // Notify other users that this user has left the chat
+    // Assuming you have a way to associate socket.id with the username and channel
+    // You may need to track which user was in which channel for this to work properly
+    io.emit('user-left', { username: socket.username || 'A user' });
   });
 });
+
 
 
 // Start the server to use the http server with Socket.io

@@ -1,180 +1,134 @@
-# Project Title: Group Management and Chat System (Phase 1)
+# Project Documentation
 
-## Overview
-
-This project is a Group Management and Chat system built with Angular on the client-side and Node.js on the backend. The primary purpose of the system is to allow users to create groups, manage group members, and have a chat-like interaction within channels. There are different roles like Super Admins and Group Admins that have varied privileges, such as banning members, promoting them to admins, and managing waiting lists. The only thing I couldn't get working within my limited time was the functionality to support multiple Super Admins.
+## Table of Contents
+1. [Git Repository Organization](#git-repository-organization)
+2. [Data Structures](#data-structures)
+3. [Client and Server Responsibilities](#client-and-server-responsibilities)
+4. [Server Routes](#server-routes)
+5. [Angular Architecture](#angular-architecture)
+6. [Client-Server Interaction](#client-server-interaction)
 
 ## Git Repository Organization
 
-The project follows a straightforward Git organization. I used a single `main` branch, and commits were made regularly after completing bug-free iterations or implementing new pages.
+The repository contains only the `main` branch with 31 commits. Commit messages reflect the incremental progress and feature implementations, such as:
 
-The repository is divided into two main folders:
+- `fixed joining and leaving messages for socket chats`
+- `added frontend and external tests`
+- `finished updating UI`
+- `added video chat and is now functional`
+- `Sending images now works`
 
-1\. **Frontend** (`/frontend`) -- This contains all Angular components, services, and routes. The front-end listens on port `4200`.
-
-2\. **Backend** (`/backend`) -- This contains the Node.js server code, listening on port `3000`, which includes express and session management logic.
-
-You can find a commit history screenshot provided for reference:
-
-- **Login page**
-
-- **Create New Group and Create New Channel**
-
-- **View Group Members, Ban and Report Users**
-
-- **Manage Waiting Lists**
+The project structure is as follows:
+```
+└── 📁SFAssignment1
+    └── 📁backend
+        └── 📁uploads
+            └── 📁message-images
+            └── 📁profile-pictures
+        └── data.json
+        └── db.js
+        └── package-lock.json
+        └── package.json
+        └── server.js
+    └── 📁coverage
+        └── 📁lcov-report
+    └── 📁frontend
+        └── 📁app
+            └── 📁public
+            └── 📁src
+                └── 📁app
+                    └── various Angular components
+                └── 📁assets
+            └── angular.json
+            └── cookies.txt
+            └── package-lock.json
+            └── package.json
+            └── README.md
+            └── tsconfig files
+        └── .DS_Store
+    └── 📁test
+        └── group-api.test.js
+        └── mongodb.test.js
+        └── user-api.test.js
+    └── package-lock.json
+    └── package.json
+    └── README.md
+```
 
 ## Data Structures
 
-The system uses simple in-memory data structures on both the client and server sides. Here's a breakdown:
+The backend uses MongoDB collections to handle data for the following entities:
+- **Users**: Fields include `id`, `username`, `password`, `email`, `roles`, and `groups`.
+- **Groups**: Fields include `name`, `channels`, `members`, and `groupAdmin`.
+- **Messages**: Stores chat messages with fields like `group`, `channel`, `sender`, `message`, `profilePicture`, and `timestamp`.
+- **Banned List**: Contains users who are banned from the groups.
 
-### Server-Side (Node.js)
+The frontend interacts with these data structures by accessing the backend endpoints directly.
 
-- **Users**: 
+## Client and Server Responsibilities
 
+### Server Responsibilities
+The server, built with Node.js and Express, handles most of the application logic, including:
+- User authentication and session handling
+- Real-time messaging with Socket.io
+- File uploads (profile pictures and message images) using Multer
+- Data storage in MongoDB for users, groups, messages, and bans
+- REST API endpoints for creating, updating, and deleting groups, channels, and users
 
-  {
+### Client Responsibilities
+The frontend, built with Angular, performs the following tasks:
+- Sending requests to the server for data retrieval and updates
+- Handling user interactions and displaying dynamic data
+- Connecting to the Socket.io server for real-time communication
+- Managing state updates in standalone components
 
-    id: uuidv4(),
+## Server Routes
 
-    username: 'super',
+The following is a list of key routes available on the server, including their parameters and purposes:
 
-    password: '123',
-
-    email: 'super@example.com',
-
-    roles: ['group', 'super'], // Roles can be 'super', 'group', or none
-
-    groups: ['Group 1', 'Group 2'] // Array of groups the user belongs to
-
-  }
-
-
-- **Groups**: 
-
-
-  {
-
-    id: uuidv4(),
-
-    name: 'Group 1',
-
-    channels: ['Channel A', 'Channel B'], // List of channels in this group
-
-    members: ['user1', 'user2'], // Members of the group
-
-    groupAdmin: 'super', // Admin of the group
-
-    waitingList: [] // Waiting list for pending members
-
-  }
-
-
-- **Banned List**:
-
-
-  {
-
-    username: 'bannedUser',
-
-    report: 'Violation of rules' // Reason for ban
-
-  }
-
-
-### Client-Side (Angular)
-
-- **User**: The user entity stored after login in the session, similar to the backend structure.
-
-- **Group**: Contains group details including members, group admins, and channels.
-
-- **Banned List**: Stores banned users and the reason for their ban.
+| Route                             | Method | Parameters                                 | Purpose                                                         |
+|-----------------------------------|--------|--------------------------------------------|----------------------------------------------------------------|
+| `/login`                          | POST   | `username`, `password`                     | Logs in a user and creates a session                           |
+| `/register`                       | POST   | `username`, `password`, `email`            | Registers a new user                                           |
+| `/groups`                         | GET    | None                                       | Retrieves all groups                                           |
+| `/groups/:groupName/channels`     | POST   | `groupName`, `channel`                     | Adds a new channel to a specified group                        |
+| `/upload-profile-picture`         | POST   | `profilePicture` (file)                    | Uploads a profile picture                                      |
+| `/ban-user`                       | POST   | `username`, `report`                       | Bans a user and logs a report                                  |
+| `/unban-user`                     | POST   | `username`                                 | Unbans a user                                                  |
+| `/delete-account`                 | DELETE | `username`                                 | Deletes a user account and all associated data                 |
+| `/groups/:groupName/leave`        | POST   | `groupName`, `username`                    | Allows a user to leave a group                                 |
+| `/upload-image`                   | POST   | `file` (image), `group`, `channel`, `sender`, `timestamp` | Handles image uploads for chat messages                     |
 
 ## Angular Architecture
 
-### Components
+The Angular project uses a modular architecture with standalone components for each functionality. The main routes and components in the application are as follows:
 
-The system consists of various Angular components:
+| Path                     | Component                      | Description                               |
+|--------------------------|-------------------------------|-------------------------------------------|
+| `/login`                 | `LoginComponent`              | Handles user login                         |
+| `/create-new-account`    | `CreateNewAccountComponent`   | Allows users to create a new account       |
+| `/groups`                | `GroupsComponent`             | Displays the list of groups                |
+| `/chat`                  | `ChatComponent`               | Handles the chat functionality             |
+| `/channels`              | `ChannelsComponent`           | Shows the list of channels within a group  |
+| `/member-list`           | `MemberListComponent`         | Displays the members of a group            |
+| `/ban-list`              | `BanListComponent`            | Shows the list of banned users             |
+| `/video-chat`            | `VideoChatComponent`          | Handles video chat functionality           |
 
-- **LoginComponent**: Handles user login.
+## Client-Server Interaction
 
-- **CreateNewAccountComponent**: Registers new users.
+### Chat Component Example
+The ChatComponent demonstrates how the Angular client interacts with the Node.js server using both HttpClient and Socket.io for seamless communication. Here's a summary of its functionality:
+- **Connecting to Socket.io**: Establishes a connection to the server and joins the appropriate chat channel.
+- **Real-Time Messaging**: Listens for incoming messages, updates chat history, and sends text or image messages.
+- **Loading User Session**: Fetches session data from the server to identify the logged-in user.
+- **File Uploads**: Supports image file uploads within the chat interface, sending them to the server for processing.
 
-- **GroupsComponent**: Displays groups for the logged-in user and allows management actions like viewing members, deleting groups, etc.
+### Flow of Interaction
+1. **User logs in**: Login information is sent to the server, and upon successful authentication, a session is created.
+2. **Chat Initialization**: Upon joining a chat channel, the client requests the chat history from the server.
+3. **Message Sending**: Messages and images are sent from the client to the server via Socket.io, and the server broadcasts them to all connected users.
+4. **Real-Time Updates**: New messages are received from the server in real time and displayed in the chat interface.
 
-- **MemberListComponent**: Shows members of a group and enables actions like kicking or promoting users.
-
-- **ChannelsComponent**: Displays channels of a selected group.
-
-- **ChatComponent**: Placeholder for a future chat feature.
-
-- **BanAndReportComponent**: Used by group admins and super admins to ban and report users.
-
-- **BanListComponent**: Super admins can view banned users and unban them.
-
-### Services
-
-The Angular `HttpClient` service is used to interact with the backend. Each component that needs to send or fetch data communicates with the server via RESTful API requests.
-
-### Routes
-
-The `app.routes.ts` file defines the routes for the application, such as:
-
-- `/login` for the login page
-
-- `/groups` for managing groups
-
-- `/member-list` for viewing group members
-
-- `/ban-list` for viewing banned users (Super Admin only)
-
-## Node.js Server Architecture
-
-### Files
-
-The project uses a single `server.js` file for the backend logic, simplifying Phase 1 implementation. It uses the following technologies:
-
-- **express**: To set up the HTTP server and handle routing.
-
-- **express-session**: To manage user sessions.
-
-- **cors**: To allow cross-origin requests from the Angular frontend.
-
-### Global Variables
-
-- **users**: In-memory storage for users.
-
-- **groups**: In-memory storage for groups.
-
-- **bannedList**: In-memory storage for banned users.
-
-### Functions and Modules
-
-- **Session Management**: User sessions are handled using `express-session` and are tied to login/logout functionality.
-
-- **Group and User Management**: Functions such as adding users to groups, managing group members, promoting admins, and banning users are handled in the express routes.
-
-## Server-Side Routes
-
-| Route                        | Method | Parameters                | Return Value                 | Description                                    |
-|------------------------------|--------|---------------------------|------------------------------|------------------------------------------------|
-| /login                      | POST   | { username, password }   | User session data             | Authenticates a user and creates a session.    |
-| /register                   | POST   | { username, password, email } | Confirmation message      | Registers a new user.                         |
-| /groups                     | GET    | None                      | List of all groups            | Fetches all groups.                           |
-| /groups/:groupName/kick     | POST   | { member }               | Confirmation message          | Removes a member from the group.              |
-| /groups/:groupName/promote  | POST   | { member }               | Confirmation message          | Promotes a member to group admin.             |
-| /ban-user                   | POST   | { username, report }     | Confirmation message          | Bans a user and adds them to the banned list. |
-| /unban-user                  | POST   | { username }             | Confirmation message          | Unbans a user by removing them from bannedList|
-| /banned-users               | GET    | None                       | List of banned users          | Retrieves a list of banned users.             |
-
-
-## Interaction Between Client and Server
-
-- **Login**: The login form sends a POST request to `/login`. On success, the user is redirected to the Groups page. The user's session is saved, allowing privileged actions like creating or deleting groups.
-
-- **Group Management**: Group Admins and Super Admins can create new groups via POST requests to `/groups`, and add channels via `/groups/:groupName/channels`.
-
-- **Ban/Unban Users**: Group admins or Super Admins can ban users by sending a POST request to `/ban-user`. The user is removed from all groups and added to the banned list. Super Admins can unban users via `/unban-user`.
-
-- **Displaying Members**: When viewing group members, the Angular component sends a GET request to `/groups/:groupName/waiting-list` to load the waiting list and manages group membership accordingly.
-
+## Additional Information
+- **File Uploads**: Profile pictures and message images are stored in the `/uploads` directory on the server.
+- **Technologies Used**: Node.js, Express, MongoDB, Angular, Socket.io, and Multer.

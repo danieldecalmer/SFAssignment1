@@ -1,43 +1,52 @@
-<div class="groups-container">
-  <!-- User's groups -->
-  <div class="user-groups">
-    <h2>Your Groups</h2>
-    <div *ngFor="let group of userGroups" class="group-item">
-      <button (click)="onClickGroup(group)">{{ group.name }}</button>
-      <button (click)="onClickMember(group)">View Members</button>
+<div class="main-container">
+  <!-- Content Section -->
+  <div class="content">
+    <div class="groups-container">    
+      <!-- User's groups section -->
+      <div class="user-groups section">
+        <h2>Your Groups</h2>
+        <div *ngFor="let group of userGroups" class="group-item">
+          <button class="group-btn" (click)="onClickGroup(group)">{{ group.name }}</button>
+          <button class="member-btn" (click)="onClickMember(group)">View Members</button>
 
-      <!-- Show Delete Group button if the user is authorized -->
-      <button *ngIf="canDeleteGroup(group)" (click)="deleteGroup(group)">Delete Group</button>
+          <!-- Show Delete Group button if the user is authorized -->
+          <button *ngIf="canDeleteGroup(group)" class="delete-btn" (click)="deleteGroup(group)">Delete Group</button>
+        </div>
+      </div>
+
+      <!-- Other groups section -->
+      <div class="other-groups section">
+        <h2>Other Groups</h2>
+        <div *ngFor="let group of otherGroups" class="group-item">
+          <button class="request-btn" (click)="registerInterest(group)">{{ group.name }} (Request to Join)</button>
+        </div>
+      </div>
     </div>
+
+    <!-- Profile Section -->
+    <div class="profile-section">
+      <img *ngIf="profilePictureUrl" [src]="'http://localhost:3000/' + user.profilePicture" alt="Profile Picture" class="profile-picture" />
+      <button class="change-pfp-btn" (click)="changeProfilePicture()">Change Profile Picture</button>
+    </div>  
   </div>
 
-  <!-- Other groups -->
-  <div class="other-groups">
-    <h2>Other Groups</h2>
-    <div *ngFor="let group of otherGroups" class="group-item">
-      <button (click)="registerInterest(group)">{{ group.name }} (Request to Join)</button>
+  <!-- Controls Section -->
+  <div class="controls-container">
+    <!-- Create New Group Button -->
+    <button *ngIf="canCreateGroup" class="create-group-btn" (click)="createNewGroup()">Create New Group</button>
+
+    <!-- Ban List Button (Only visible to 'super' users) -->
+    <button *ngIf="isSuperAdmin" class="ban-list-btn" (click)="viewBanList()">Ban List</button>
+
+    <!-- Logout Button -->
+    <button class="logout-btn" (click)="onLogout()">Logout</button>
+
+    <!-- Delete Account Button -->
+    <button *ngIf="canDeleteAccount()" class="delete-account-btn" (click)="deleteAccount()">Delete Account</button>
+
+    <!-- Feedback message after registering interest -->
+    <div *ngIf="feedbackMessage" class="feedback-message">
+      {{ feedbackMessage }}
     </div>
-  </div>
-
-  <div class="profile-section">
-    <button class="change-pfp-btn" (click)="changeProfilePicture()">Change Profile Picture</button>
-    <img *ngIf="profilePictureUrl" [src]="'http://localhost:3000/' + user.profilePicture" alt="Profile Picture" class="profile-picture" />
-  </div>  
-
-  <!-- Create New Group Button -->
-  <button *ngIf="canCreateGroup" class="create-group-btn" (click)="createNewGroup()">Create New Group</button>
-
-  <!-- Ban List Button (Only visible to 'super' users) -->
-  <button *ngIf="isSuperAdmin" class="ban-list-btn" (click)="viewBanList()">Ban List</button>
-
-  <!-- Logout Button -->
-  <button class="logout-btn" (click)="onLogout()">Logout</button>
-
-  <!-- Delete Account Button -->
-  <button *ngIf="canDeleteAccount()" class="delete-account-btn" (click)="deleteAccount()">Delete Account</button>
-
-  <!-- Feedback message after registering interest -->
-  <div *ngIf="feedbackMessage" class="feedback-message">
-    {{ feedbackMessage }}
   </div>
 </div>

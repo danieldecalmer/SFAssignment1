@@ -923,4 +923,46 @@ app.post('/upload-image', uploadImage.single('file'), async (req, res) => {
   }
 });
 
+// Route to delete a user's account
+app.delete('/delete-account', async (req, res) => {
+  const { username } = req.body; // Get the username from the request body
 
+  try {
+    // Step 1: Find the user in the database
+    const user = await usersCollection.findOne({ username: username });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Step 2: Remove the user from all groups they are a member of
+    await groupsCollection.updateMany(
+      { members: username },
+      {
+        $pull: { members: username }, // Remove the user from the members list
+        $pull: { groupAdmins: username } // Remove the user from the group admin list, if present
+      }
+    );
+
+    // Step 3: Reassign group admin if the deleted user was the group admin
+    await groupsCollection.updateMany(
+      { groupAdmin: username },
+      {
+        $set: { groupAdmin: null } // Set group admin to null or reassign logic if required
+      }
+    );
+
+    // Step 4: Remove all messages or content associated with the user
+    await messagesCollection.deleteMany({ sender: username });
+
+    // Step 5: Remove the user from the banned list (if applicable)
+    await db.collection('bannedList').deleteOne({ username: username });
+
+    // Step 6: Finally, delete the user from the users collection
+    await usersCollection.deleteOne({ username: username });
+
+    res.status(200).json({ message: 'Account deleted successfully and all associated data removed.' });
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    res.status(500).json({ message: 'An error occurred while deleting the account.', error });
+  }
+});

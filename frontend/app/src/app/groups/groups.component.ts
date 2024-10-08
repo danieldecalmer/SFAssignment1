@@ -161,7 +161,10 @@ export class GroupsComponent implements OnInit {
 
   // Delete account method
   deleteAccount() {
-    this.http.delete('http://localhost:3000/delete-account', { withCredentials: true }).subscribe({
+    this.http.delete('http://localhost:3000/delete-account', { 
+      body: { username: this.user.username }, // Pass the username as body
+      withCredentials: true 
+      }).subscribe({
       next: (response: any) => {
         console.log(response.message);
         this.router.navigate(['/login']); // Navigate to login after account deletion

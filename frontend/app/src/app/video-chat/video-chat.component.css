@@ -1,18 +1,103 @@
+/* Container styling for the video chat */
 .video-chat-container {
-    text-align: center;
-  }
-  
-  .video-container {
-    margin: 10px 0;
-  }
-  
-  video {
-    width: 400px;
-    height: 300px;
-    background-color: black;
-  }
-  
-  .controls {
-    margin-top: 20px;
-  }
-  
+  text-align: center;
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Title styling */
+.video-chat-title {
+  margin-bottom: 20px;
+  font-size: 2rem;
+  color: #333;
+}
+
+/* Section for organizing local and remote videos */
+.video-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Container styling for individual videos */
+.video-container {
+  background-color: #333;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  width: 45%; /* Ensure both local and remote videos are displayed properly */
+}
+
+/* Specific styling for the local video container */
+.local-video-container {
+  border: 2px solid #007bff;
+}
+
+/* Styling for the video elements */
+video {
+  width: 100%;
+  height: auto;
+  background-color: black;
+  border-radius: 5px;
+}
+
+/* Remote videos container styling */
+.remote-videos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+/* Controls section styling */
+.controls-section {
+  background-color: #f1f1f1;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.controls {
+  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Styling for input fields */
+.controls input[type="text"] {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  width: 200px;
+}
+
+/* Button styling */
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Peer information styling */
+.peer-info {
+  margin-top: 10px;
+  font-size: 1rem;
+  color: #555;
+}

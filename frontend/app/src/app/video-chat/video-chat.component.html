@@ -1,23 +1,26 @@
 <div class="video-chat-container">
-    <h1>Group Video Chat</h1>
-  
-    <!-- Local video -->
-    <div class="video-container">
-      <h3>Your Video</h3>
-      <video id="local-video" autoplay muted></video> <!-- Muted to avoid feedback -->
-    </div>
-  
-    <!-- Remote videos -->
-    <div id="remote-video-container" class="video-container">
-      <h3>Remote Videos</h3>
-      <!-- Remote video elements will be added here dynamically for each peer -->
-    </div>
-  
-    <!-- Controls for calling a specific peer -->
-    <div class="controls">
-      <input type="text" [(ngModel)]="remotePeerId" placeholder="Enter remote peer ID" />
-      <button (click)="startCall()">Start Call</button>
-      <p>Your peer ID: {{ peerId }}</p>
-    </div>
+  <h1 class="video-chat-title">Group Video Chat</h1>
+
+  <div class="video-section">
+      <!-- Local video -->
+      <div class="video-container local-video-container">
+          <h3>Your Video</h3>
+          <video id="local-video" autoplay muted></video> <!-- Muted to avoid feedback -->
+      </div>
+
+      <!-- Remote videos -->
+      <div id="remote-video-container" class="remote-videos">
+          <h3>Remote Videos</h3>
+          <!-- Remote video elements will be added here dynamically for each peer -->
+      </div>
   </div>
-  
+
+  <!-- Information section for user IDs and controls -->
+  <div class="controls-section">
+      <div class="controls">
+          <!-- <input type="text" [(ngModel)]="remotePeerId" placeholder="Enter remote peer ID" /> -->
+          <!-- <button (click)="startCall()">Start Call</button> -->
+      </div>
+      <p class="peer-info">Your peer ID: <strong>{{ peerId }}</strong></p>
+  </div>
+</div>

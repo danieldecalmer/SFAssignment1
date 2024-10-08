@@ -24,15 +24,14 @@ body, html {
 /* Content container to fill available space */
 .content {
   flex: 1; /* Expand to occupy all remaining space */
-  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
 /* Flex container for groups */
 .groups-container {
-  width: 100%;
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   margin-bottom: 20px;
   background-color: #ffffff;
@@ -44,7 +43,7 @@ body, html {
 
 /* Section style for equally sized containers */
 .section {
-  flex: 1; /* This makes each section take up equal width */
+
   display: flex;
   flex-direction: column;
   padding: 15px;

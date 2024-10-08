@@ -1,22 +1,67 @@
+/* Container for the banned users list */
 .ban-list-container {
-    padding: 20px;
-  }
-  
-  .banned-user-item {
-    display: flex;
-    justify-content: space-between;
-    margin: 10px 0;
-  }
-  
-  button {
-    padding: 5px 10px;
-    background-color: red;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: darkred;
-  }
-  
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 25px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Title styling */
+.ban-list-container h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.8em;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+/* Message for no banned users */
+.no-banned-users p {
+  font-size: 1.1em;
+  color: #666;
+}
+
+/* List of banned users */
+.banned-users-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Individual banned user item */
+.banned-user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin: 10px 0;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* User info styling */
+.user-info {
+  font-size: 1em;
+  color: #333;
+}
+
+/* Unban button styling */
+.unban-btn {
+  padding: 8px 15px;
+  background-color: #dc3545; /* Red background for unban button */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.unban-btn:hover {
+  background-color: #b02a37; /* Darker red on hover */
+}

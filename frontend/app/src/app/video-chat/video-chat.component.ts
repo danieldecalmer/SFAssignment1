@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import Peer from 'peerjs';
-import { FormsModule } from '@angular/forms'; // Import FormsModule
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-video-chat',
@@ -15,7 +15,7 @@ export class VideoChatComponent implements OnInit, OnDestroy {
   connections: any[] = [];  // Array to store peer connections
   remoteStreams: { [id: string]: MediaStream } = {}; // Store remote streams by peer ID
   peerId: string = ''; // The peer ID for the user
-  remotePeerId: string = ''; // The ID of the peer to call
+  channelId: string = 'channel-room-id'; // Channel or room identifier for video chat
 
   constructor() {}
 
@@ -23,7 +23,7 @@ export class VideoChatComponent implements OnInit, OnDestroy {
     this.initializePeer();
   }
 
-  // Initialize PeerJS and listen for connections
+  // Initialize PeerJS and automatically join the channel
   initializePeer() {
     // Create a new Peer instance
     this.peer = new Peer({ host: 'localhost', port: 9000, path: '/' });
@@ -31,11 +31,13 @@ export class VideoChatComponent implements OnInit, OnDestroy {
     // Get the peer ID once the peer is open
     this.peer.on('open', (id) => {
       this.peerId = id;
-      console.log('My peer ID is:', this.peerId);
+      console.log(`My peer ID is: ${this.peerId}`);
+      this.joinVideoChat();
     });
 
     // Handle incoming calls from other peers
     this.peer.on('call', (call) => {
+      console.log(`Receiving a call from peer ID: ${call.peer}`);
       navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
         this.localStream = stream;
         this.displayLocalStream(stream);
@@ -43,6 +45,7 @@ export class VideoChatComponent implements OnInit, OnDestroy {
 
         // Listen for the remote stream and display it
         call.on('stream', (remoteStream) => {
+          console.log(`Received remote stream from peer ID: ${call.peer}`);
           this.remoteStreams[call.peer] = remoteStream;
           this.displayRemoteStream(remoteStream, call.peer);
         });
@@ -50,21 +53,33 @@ export class VideoChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Manually start the video call by entering a remote peer ID
-  startCall() {
-    if (this.remotePeerId && this.peer) {
+  // Join the video chat by calling all existing peers in the channel
+  joinVideoChat() {
+    if (this.peer) {
       navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
         this.localStream = stream;
-        const call = this.peer!.call(this.remotePeerId, stream);
+        this.displayLocalStream(stream);
 
-        // Store the connection
-        this.connections.push(call);
+        // Fetch the list of peers currently connected to the channel
+        this.peer?.listAllPeers((peers) => {
+          console.log('Peers in the channel:', peers);
+          peers.forEach((peerId) => {
+            if (peerId !== this.peerId) { // Avoid calling yourself
+              console.log(`Calling peer ID: ${peerId}`);
+              const call = this.peer!.call(peerId, stream);
+              this.connections.push(call);
 
-        // Listen for the remote stream
-        call.on('stream', (remoteStream) => {
-          this.remoteStreams[this.remotePeerId] = remoteStream;
-          this.displayRemoteStream(remoteStream, this.remotePeerId);
+              // Listen for the remote stream
+              call.on('stream', (remoteStream) => {
+                console.log(`Connected to remote peer ID: ${peerId}`);
+                this.remoteStreams[peerId] = remoteStream;
+                this.displayRemoteStream(remoteStream, peerId);
+              });
+            }
+          });
         });
+      }).catch((error) => {
+        console.error('Error accessing local media:', error);
       });
     }
   }
@@ -79,7 +94,7 @@ export class VideoChatComponent implements OnInit, OnDestroy {
   // Display a remote video stream
   displayRemoteStream(stream: MediaStream, peerId: string) {
     let remoteVideo = document.getElementById(`remote-video-${peerId}`) as HTMLVideoElement;
-    
+
     // If the remote video element doesn't exist yet, create it
     if (!remoteVideo) {
       const videoContainer = document.getElementById('remote-video-container');

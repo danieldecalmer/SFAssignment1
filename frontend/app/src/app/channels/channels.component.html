@@ -2,10 +2,10 @@
     <h1>Channels</h1>
     <div class="channel-list">
         <div class="channel-item" *ngFor="let channel of channels">
-            <button (click)="onChannelClick(channel)">{{ channel }}</button>
+            <button class="channel-btn" (click)="onChannelClick(channel)">{{ channel }}</button>
 
             <!-- Show "Delete Channel" button only if the logged-in user is a group admin -->
-            <button *ngIf="isGroupAdmin" class="delete-channel-btn" (click)="onDeleteChannel(channel)">Delete Channel</button>
+            <button *ngIf="isGroupAdmin" class="delete-channel-btn" (click)="onDeleteChannel(channel)">Delete</button>
         </div>
     </div>
 

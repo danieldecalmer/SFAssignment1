@@ -1,12 +1,28 @@
+/* Overall container styling */
 .channels-container {
     display: flex;
     flex-direction: column;
     height: 95vh;
+    width: 90%;
+    max-width: 800px;
     margin: auto;
     padding: 20px;
+    background: linear-gradient(to bottom right, #f9f9f9, #e0e0e0);
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
 
+/* Title styling */
+.channels-container h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+/* List of channels */
 .channel-list {
     flex-grow: 1;
     overflow-y: auto;
@@ -14,23 +30,86 @@
     padding: 0;
 }
 
+/* Individual channel items */
 .channel-item {
-    padding: 10px;
-    margin-bottom: 10px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    margin-bottom: 12px;
+    background: linear-gradient(to right, #f0f0f0, #e7e7e7);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, background 0.3s ease;
 }
 
-.create-new-channel-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
+.channel-item:hover {
+    transform: translateY(-3px);
+    background: linear-gradient(to right, #e7e7e7, #dcdcdc);
+}
+
+/* Channel button */
+.channel-btn {
+    padding: 10px 15px;
     background-color: #007bff;
     color: white;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.channel-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Delete Channel button */
+.delete-channel-btn {
+    padding: 8px 12px;
+    margin-left: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.delete-channel-btn:hover {
+    background-color: #c82333;
+}
+
+/* Create New Channel button */
+.create-new-channel-btn {
+    margin: 20px 0;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .create-new-channel-btn:hover {
-    background-color: #0056b3;
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+/* Back button */
+.back-btn {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #6c757d;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.back-btn:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
 }

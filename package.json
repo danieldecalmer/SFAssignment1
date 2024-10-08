@@ -1,0 +1,20 @@
+{
+  "devDependencies": {
+    "@angular/cli": "^18.2.7",
+    "jasmine-core": "^5.3.0",
+    "jest": "^29.7.0",
+    "karma": "^6.4.4",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-jasmine": "^5.1.0",
+    "karma-jasmine-html-reporter": "^2.1.0",
+    "supertest": "^7.0.0"
+  },
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/__tests__/**/*.js?(x)", "**/?(*.)+(spec|test).js?(x)"],
+    "moduleFileExtensions": ["js", "json", "jsx", "ts", "tsx", "node"]
+  }
+}
